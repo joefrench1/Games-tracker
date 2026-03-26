@@ -122,8 +122,8 @@ h1{font-family:'Fredoka One',cursive;font-size:clamp(2rem,6vw,3.4rem);
   gap:6px;padding:20px 10px;transition:all 0.2s;position:relative;
   background:var(--card2);font-family:'Nunito',sans-serif;
   -webkit-tap-highlight-color:transparent;touch-action:manipulation;}
-.win-btn.p1{border-color:rgba(232,72,85,0.3);}
-.win-btn.p2{border-color:rgba(74,158,222,0.3);}
+.win-btn.p1{border-color:rgba(232,72,85,0.55);}
+.win-btn.p2{border-color:rgba(74,158,222,0.55);}
 .win-btn.p1:active,.win-btn.p1.sel{border-color:var(--p1);background:var(--p1bg);
   box-shadow:0 0 28px var(--p1glow);}
 .win-btn.p2:active,.win-btn.p2.sel{border-color:var(--p2);background:var(--p2bg);
@@ -559,9 +559,19 @@ function lsLoad(){
 // All calls use simple fetch() — no SDK needed, works everywhere
 
 async function fbFetch(){
-  // Read the entire /gsc node in one call
-  const r = await fetch(DB+'/'+ROOT+'.json', {cache:'no-store'});
-  if(!r.ok) throw new Error('HTTP '+r.status);
+  // Read the entire /gsc node in one call — 8s timeout
+  const ctrl = new AbortController();
+  const tid = setTimeout(() => ctrl.abort(), 8000);
+  let r;
+  try {
+    r = await fetch(DB+'/'+ROOT+'.json', {cache:'no-store', signal:ctrl.signal});
+  } catch(e) {
+    clearTimeout(tid);
+    if(e.name === 'AbortError') throw new Error('timeout — is Firebase set up? See SETUP.md');
+    throw new Error(e.message || 'network error');
+  }
+  clearTimeout(tid);
+  if(!r.ok) throw new Error('HTTP '+r.status+' — check Firebase rules (SETUP.md)');
   return r.json();
 }
 
@@ -635,7 +645,9 @@ async function sync(){
     // Show exact error so we can debug — never stay on 'connecting'
     const msg = e && e.message ? e.message : String(e);
     const el = G('syncStatus');
-    el.innerHTML = '🔴 ' + (syncAttempts <= 1 ? 'Error: '+msg : 'Offline ('+msg+') — using local data');
+    const hint = msg.includes('SETUP') || msg.includes('Firebase') || msg.includes('HTTP 401') || msg.includes('HTTP 403')
+      ? ' — <a href="SETUP.md" style="color:var(--blue2)">setup Firebase rules</a>' : '';
+    el.innerHTML = '🔴 ' + (syncAttempts <= 1 ? 'Error: '+msg : 'Offline ('+msg+') — using local data') + hint;
     el.style.color = 'var(--red2)';
     el.title = msg;
     // Always render with local data so app is usable
@@ -739,6 +751,7 @@ async function addGame(){
   G('wb1').classList.remove('sel');G('wb2').classList.remove('sel');
   G('bs1').textContent='Tap to select';G('bs2').textContent='Tap to select';
   G('s1').value='';G('s2').value='';G('sp1').innerHTML='';G('sp2').innerHTML='';
+  G('gameDate').valueAsDate = new Date();
   G('subBtn').disabled=true;G('subBtn').textContent='↑ Pick a winner first!';
 
   const winScore=gm.winner===1?sc1:sc2, ph=getPhrase(winScore);
@@ -889,7 +902,7 @@ function renderHistory(){
     const hasS=gm.score1>0||gm.score2>0,sc1=gm.score1||0,sc2=gm.score2||0;
     const margin=hasS?Math.abs(sc1-sc2):null,isExp=expandedId===gm.fbKey;
     const ph1=getPhrase(sc1),ph2=getPhrase(sc2);
-    const fk=(gm.fbKey||'').replace(/['"\]/g,'');
+    const fk=(gm.fbKey||'').replace(/['"]/g,'');
     return '<div class="game-card'+(isExp?' expanded':'')+'">'
       +'<div class="game-card-header" onclick="toggleExpand(''+fk+'')">'
         +'<span class="g-num">#'+num+'</span>'
@@ -930,6 +943,8 @@ async function manualSync(){
 // 1. Show local data immediately (never a blank screen)
 lsLoad();
 setStatus('connecting');
+// Default date to today
+G('gameDate').valueAsDate = new Date();
 renderAll();
 // 2. Start syncing with Firebase
 startSync();
