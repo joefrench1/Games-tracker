@@ -1,0 +1,8 @@
+{
+  "rules": {
+    "gsc": {
+      ".read": true,
+      ".write": true
+    }
+  }
+}
