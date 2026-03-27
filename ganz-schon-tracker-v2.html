@@ -1082,7 +1082,10 @@ function fmtDate(d){
 }
 function renderHistory(){
   const el=G('historyList');
-  let list=[...games].reverse();
+  let list=[...games].sort((a,b)=>{
+    if(b.date&&a.date){const dc=b.date.localeCompare(a.date);if(dc!==0)return dc;}
+    return (b.id||0)-(a.id||0);
+  });
   if(filterMode==='p1')list=list.filter(x=>x.winner===1);
   if(filterMode==='p2')list=list.filter(x=>x.winner===2);
   if(!list.length){el.innerHTML='<div class="empty-state"><span class="big">🎲</span>No games to show yet!</div>';return;}
