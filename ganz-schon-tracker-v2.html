@@ -902,9 +902,9 @@ function renderHistory(){
     const hasS=gm.score1>0||gm.score2>0,sc1=gm.score1||0,sc2=gm.score2||0;
     const margin=hasS?Math.abs(sc1-sc2):null,isExp=expandedId===gm.fbKey;
     const ph1=getPhrase(sc1),ph2=getPhrase(sc2);
-    const fk=(gm.fbKey||'').replace(/['"]/g,'');
+    const fk=(gm.fbKey||'').replace(/["']/g,'');
     return '<div class="game-card'+(isExp?' expanded':'')+'">'
-      +'<div class="game-card-header" onclick="toggleExpand(''+fk+'')">'
+      +'<div class="game-card-header" data-fbkey="'+fk+'" onclick="toggleExpand(this.dataset.fbkey)">'
         +'<span class="g-num">#'+num+'</span>'
         +'<span class="g-winner-badge '+wCls+'">🏆 '+wName+'</span>'
         +'<span class="g-date-col">📅 '+fmtDate(gm.date)+'</span>'
@@ -923,7 +923,7 @@ function renderHistory(){
           +(margin!==null?'<span class="meta-chip"><span>📏</span>'+margin+' pt margin</span>':'')
         +'</div>'
         +'<div style="display:flex;justify-content:flex-end;margin-top:8px">'
-          +'<button class="game-card-del" onclick="event.stopPropagation();deleteGame(''+fk+'')">🗑 Delete this game</button>'
+          +'<button class="game-card-del" data-fbkey="'+fk+'" onclick="event.stopPropagation();deleteGame(this.dataset.fbkey)">🗑 Delete this game</button>'
         +'</div>'
       +'</div></div></div>';
   }).join('');
@@ -943,7 +943,6 @@ async function manualSync(){
 // 1. Show local data immediately (never a blank screen)
 lsLoad();
 setStatus('connecting');
-// Default date to today
 G('gameDate').valueAsDate = new Date();
 renderAll();
 // 2. Start syncing with Firebase
