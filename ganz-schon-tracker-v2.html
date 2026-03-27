@@ -903,29 +903,39 @@ function renderHistory(){
     const margin=hasS?Math.abs(sc1-sc2):null,isExp=expandedId===gm.fbKey;
     const ph1=getPhrase(sc1),ph2=getPhrase(sc2);
     const fk=(gm.fbKey||'').replace(/["']/g,'');
-    return '<div class="game-card'+(isExp?' expanded':'')+'">'
-      +'<div class="game-card-header" data-fbkey="'+fk+'" onclick="toggleExpand(this.dataset.fbkey)">'
-        +'<span class="g-num">#'+num+'</span>'
-        +'<span class="g-winner-badge '+wCls+'">🏆 '+wName+'</span>'
-        +'<span class="g-date-col">📅 '+fmtDate(gm.date)+'</span>'
-        +(hasS?'<span class="g-score-preview"><span class="s1">'+sc1+'</span> <span style="color:var(--muted)">–</span> <span class="s2">'+sc2+'</span></span>':'<span></span>')
-        +'<span class="g-expand-icon">▼</span>'
-      +'</div>'
-      +'<div class="game-card-body"><div class="game-card-inner">'
-        +(hasS?'<div class="game-detail-grid">'
-          +'<div class="detail-block"><div class="dlabel">'+p1()+"'s Score</div><div class="dval "+(gm.winner===1?'p1c':'p2c')+'">'+sc1+'</div>'+(ph1?'<div style="font-size:0.65rem;margin-top:4px;font-weight:700;color:'+ph1.color+'">'+ph1.emoji+' '+ph1.phrase+'</div><div style="margin-top:2px">'+getStars(ph1)+'</div>':'')+'</div>'
-          +'<div class="detail-block"><div class="dlabel">'+p2()+"'s Score</div><div class="dval "+(gm.winner===2?'p2c':'p1c')+'">'+sc2+'</div>'+(ph2?'<div style="font-size:0.65rem;margin-top:4px;font-weight:700;color:'+ph2.color+'">'+ph2.emoji+' '+ph2.phrase+'</div><div style="margin-top:2px">'+getStars(ph2)+'</div>':'')+'</div>'
-          +'</div>':'')
-        +'<div class="game-meta-row">'
-          +'<span class="meta-chip"><span>🏆</span>'+wName+' won</span>'
-          +'<span class="meta-chip"><span>🎲</span>'+sName+' started</span>'
-          +'<span class="meta-chip"><span>📅</span>'+fmtDate(gm.date)+'</span>'
-          +(margin!==null?'<span class="meta-chip"><span>📏</span>'+margin+' pt margin</span>':'')
-        +'</div>'
-        +'<div style="display:flex;justify-content:flex-end;margin-top:8px">'
-          +'<button class="game-card-del" data-fbkey="'+fk+'" onclick="event.stopPropagation();deleteGame(this.dataset.fbkey)">🗑 Delete this game</button>'
-        +'</div>'
-      +'</div></div></div>';
+    const scoreBlock = hasS ? `
+      <div class="game-detail-grid">
+        <div class="detail-block">
+          <div class="dlabel">${p1()}'s Score</div>
+          <div class="dval ${gm.winner===1?'p1c':'p2c'}">${sc1}</div>
+          ${ph1?`<div style="font-size:0.65rem;margin-top:4px;font-weight:700;color:${ph1.color}">${ph1.emoji} ${ph1.phrase}</div><div style="margin-top:2px">${getStars(ph1)}</div>`:''}
+        </div>
+        <div class="detail-block">
+          <div class="dlabel">${p2()}'s Score</div>
+          <div class="dval ${gm.winner===2?'p2c':'p1c'}">${sc2}</div>
+          ${ph2?`<div style="font-size:0.65rem;margin-top:4px;font-weight:700;color:${ph2.color}">${ph2.emoji} ${ph2.phrase}</div><div style="margin-top:2px">${getStars(ph2)}</div>`:''}
+        </div>
+      </div>` : '';
+    return `<div class="game-card${isExp?' expanded':''}">
+      <div class="game-card-header" data-fbkey="${fk}" onclick="toggleExpand(this.dataset.fbkey)">
+        <span class="g-num">#${num}</span>
+        <span class="g-winner-badge ${wCls}">🏆 ${wName}</span>
+        <span class="g-date-col">📅 ${fmtDate(gm.date)}</span>
+        ${hasS?`<span class="g-score-preview"><span class="s1">${sc1}</span> <span style="color:var(--muted)">–</span> <span class="s2">${sc2}</span></span>`:'<span></span>'}
+        <span class="g-expand-icon">▼</span>
+      </div>
+      <div class="game-card-body"><div class="game-card-inner">
+        ${scoreBlock}
+        <div class="game-meta-row">
+          <span class="meta-chip"><span>🏆</span>${wName} won</span>
+          <span class="meta-chip"><span>🎲</span>${sName} started</span>
+          <span class="meta-chip"><span>📅</span>${fmtDate(gm.date)}</span>
+          ${margin!==null?`<span class="meta-chip"><span>📏</span>${margin} pt margin</span>`:''}
+        </div>
+        <div style="display:flex;justify-content:flex-end;margin-top:8px">
+          <button class="game-card-del" data-fbkey="${fk}" onclick="event.stopPropagation();deleteGame(this.dataset.fbkey)">🗑 Delete this game</button>
+        </div>
+      </div></div></div>`;
   }).join('');
 }
 
