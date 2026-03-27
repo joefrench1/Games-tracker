@@ -626,12 +626,6 @@ async function sync(){
     // Handle games
     const newGames = fbObjToArr(data && data.games);
 
-    // Seed if empty
-    if(newGames.length === 0){
-      await fbPushGame(SEED, true);
-      return;
-    }
-
     // Only re-render if data actually changed
     const hash = JSON.stringify(newGames);
     if(hash !== lastHash){
