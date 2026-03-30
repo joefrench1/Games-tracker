@@ -5,6 +5,11 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Ganz Schön Clever 🎲</title>
 <link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Nunito:wght@400;600;700;800;900&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#0f1923">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="GSC Tracker">
 <style>
 :root {
   --bg: #0f1923;
@@ -308,6 +313,55 @@ h1{font-family:'Fredoka One',cursive;font-size:clamp(2rem,6vw,3.4rem);
   box-shadow:0 8px 32px rgba(0,0,0,0.5);}
 .toast.show{transform:translateX(-50%) translateY(0);}
 
+/* ══ RECENT FORM DOTS ══ */
+.recent-form{display:flex;gap:4px;justify-content:center;margin-top:6px;min-height:14px;}
+.form-dot{width:11px;height:11px;border-radius:50%;flex-shrink:0;transition:transform 0.15s;}
+.form-dot.win{background:var(--green);box-shadow:0 0 5px rgba(61,220,151,0.5);}
+.form-dot.loss{background:var(--red2);box-shadow:0 0 5px rgba(232,72,85,0.4);}
+.form-label{font-size:0.55rem;text-transform:uppercase;letter-spacing:0.08em;color:var(--muted);font-weight:800;margin-top:4px;}
+
+/* ══ NOTES FIELD ══ */
+.note-field{margin-bottom:16px;}
+.note-field input{background:var(--card2);border:2px solid var(--border);border-radius:10px;
+  color:var(--cream);font-family:'Nunito',sans-serif;font-size:0.88rem;font-weight:700;
+  padding:9px 12px;outline:none;width:100%;transition:border-color 0.2s;}
+.note-field input:focus{border-color:var(--yellow);}
+.note-field input::placeholder{color:var(--muted);font-weight:600;}
+.note-display{background:var(--card3);border-radius:8px;padding:8px 12px;font-size:0.78rem;
+  color:var(--muted);font-weight:700;margin-top:10px;font-style:italic;}
+
+/* ══ PERSONAL BEST BANNER ══ */
+.popup-pb{font-size:0.78rem;font-weight:800;color:var(--yellow);letter-spacing:0.06em;
+  text-transform:uppercase;margin-bottom:6px;animation:pbPulse 0.8s ease infinite alternate;}
+@keyframes pbPulse{from{opacity:0.7}to{opacity:1}}
+
+/* ══ MONTHLY TABLE ══ */
+.monthly-table{width:100%;border-collapse:collapse;}
+.monthly-table th{font-size:0.6rem;text-transform:uppercase;letter-spacing:0.1em;color:var(--muted);
+  font-weight:800;text-align:left;padding:6px 8px;border-bottom:1px solid var(--border);}
+.monthly-table td{font-size:0.8rem;font-weight:700;padding:7px 8px;border-bottom:1px solid rgba(255,255,255,0.04);}
+.monthly-table tr:last-child td{border-bottom:none;}
+.monthly-table .mono{font-family:'DM Mono',monospace;}
+
+/* ══ ACHIEVEMENTS ══ */
+.achievements-section{background:var(--card);border:2px solid var(--border);border-radius:var(--radius);
+  padding:20px;margin-bottom:16px;}
+.ach-header{display:flex;align-items:center;gap:10px;margin-bottom:14px;}
+.ach-title{font-family:'Fredoka One',cursive;font-size:1.1rem;color:var(--yellow);}
+.ach-count{font-family:'DM Mono',monospace;font-size:0.72rem;color:var(--muted);font-weight:500;}
+.ach-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:10px;}
+.ach-card{background:var(--card2);border:2px solid var(--border);border-radius:12px;padding:13px 10px;
+  text-align:center;position:relative;overflow:hidden;transition:all 0.2s;}
+.ach-card.unlocked{border-color:rgba(245,200,66,0.5);background:var(--card3);}
+.ach-card.unlocked::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;
+  background:linear-gradient(90deg,var(--yellow),var(--orange));}
+.ach-card.locked{opacity:0.38;filter:grayscale(0.6);}
+.ach-emoji{font-size:1.7rem;display:block;margin-bottom:5px;}
+.ach-name{font-size:0.72rem;font-weight:800;color:var(--cream);margin-bottom:3px;}
+.ach-desc{font-size:0.59rem;color:var(--muted);font-weight:700;line-height:1.4;}
+@keyframes achUnlock{0%{transform:scale(0.7);opacity:0}70%{transform:scale(1.08)}100%{transform:scale(1);opacity:1}}
+.ach-card.just-unlocked{animation:achUnlock 0.45s cubic-bezier(0.34,1.56,0.64,1);}
+
 /* ══ STATS BUTTON ON SCORE CARDS ══ */
 .stats-btn{background:none;border:1.5px solid var(--border);border-radius:20px;cursor:pointer;
   font-size:0.6rem;font-family:'Nunito',sans-serif;font-weight:800;letter-spacing:0.06em;
@@ -402,6 +456,8 @@ h1{font-family:'Fredoka One',cursive;font-size:clamp(2rem,6vw,3.4rem);
       <div class="wpct" id="pct1">—</div>
       <span class="best-score-badge" id="best1"></span>
       <button class="stats-btn" onclick="showPlayerStats(1)">📊 Stats</button>
+      <div class="form-label">Last 5</div>
+      <div class="recent-form" id="form1"></div>
     </div>
     <div class="vs-col">
       <span class="vs-txt">VS</span>
@@ -414,6 +470,8 @@ h1{font-family:'Fredoka One',cursive;font-size:clamp(2rem,6vw,3.4rem);
       <div class="wpct" id="pct2">—</div>
       <span class="best-score-badge" id="best2"></span>
       <button class="stats-btn" onclick="showPlayerStats(2)">📊 Stats</button>
+      <div class="form-label">Last 5</div>
+      <div class="recent-form" id="form2"></div>
     </div>
   </div>
 
@@ -471,6 +529,10 @@ h1{font-family:'Fredoka One',cursive;font-size:clamp(2rem,6vw,3.4rem);
         <input type="date" id="gameDate">
       </div>
     </div>
+    <div class="note-field">
+      <label class="fgroup" style="font-size:0.7rem;text-transform:uppercase;letter-spacing:0.1em;color:var(--muted);font-weight:800;display:block;margin-bottom:5px">📝 Notes (optional)</label>
+      <input type="text" id="gameNote" placeholder="e.g. tournament rematch, rainy day…" maxlength="120" autocomplete="off">
+    </div>
     <button class="btn-submit" id="subBtn" onclick="addGame()" disabled>↑ Pick a winner first!</button>
   </div>
 
@@ -500,6 +562,23 @@ h1{font-family:'Fredoka One',cursive;font-size:clamp(2rem,6vw,3.4rem);
       <div class="chart-title">Win Timeline — Last 20 Games</div>
       <div class="chart-svg-wrap"><svg class="chart-svg" id="timelineSvg" width="100%" height="80"></svg></div>
     </div>
+    <div class="chart-card full">
+      <div class="chart-title">Score Margin — Who Dominated Each Game?</div>
+      <div class="chart-svg-wrap"><svg class="chart-svg" id="marginSvg" width="100%" height="130"></svg></div>
+    </div>
+    <div class="chart-card full">
+      <div class="chart-title">Monthly Breakdown</div>
+      <div id="monthlyChart"><div style="color:var(--muted);font-size:0.8rem;font-style:italic;font-weight:700">No data yet</div></div>
+    </div>
+  </div>
+
+  <!-- ACHIEVEMENTS -->
+  <div class="achievements-section">
+    <div class="ach-header">
+      <span class="ach-title">🏅 Achievements</span>
+      <span class="ach-count" id="achCount"></span>
+    </div>
+    <div class="ach-grid" id="achGrid"></div>
   </div>
 
   <!-- HISTORY -->
@@ -534,6 +613,7 @@ h1{font-family:'Fredoka One',cursive;font-size:clamp(2rem,6vw,3.4rem);
 <div class="popup-overlay" id="popOverlay" onclick="closePopup()"></div>
 <div class="score-popup" id="scorePopup">
   <div class="popup-inner">
+    <div class="popup-pb" id="popPB" style="display:none">🏅 NEW PERSONAL BEST!</div>
     <span class="popup-emoji" id="popEmoji">🎲</span>
     <div class="popup-score" id="popScore"></div>
     <div class="popup-phrase" id="popPhrase"></div>
@@ -558,6 +638,25 @@ let isOnline = false, pollTimer = null;
 
 // ══ SEED DATA ════════════════════════════════════════════════════════
 const SEED = { id:1742601600000, winner:1, starter:1, score1:282, score2:264, date:'2026-03-22' };
+
+// ══ ACHIEVEMENTS ═════════════════════════════════════════════════════
+const ACHIEVEMENTS = [
+  {id:'first',  emoji:'🎲', name:'First Roll',    desc:'Play your first game',             check:g=>g.length>=1},
+  {id:'g10',    emoji:'🎯', name:'Regular',        desc:'Play 10 games',                    check:g=>g.length>=10},
+  {id:'g25',    emoji:'🏆', name:'Dedicated',      desc:'Play 25 games',                    check:g=>g.length>=25},
+  {id:'g50',    emoji:'👑', name:'Legendary',      desc:'Play 50 games',                    check:g=>g.length>=50},
+  {id:'s200',   emoji:'⭐', name:'Getting Good',   desc:'Score 200+ in a game',             check:g=>g.some(x=>Math.max(x.score1||0,x.score2||0)>=200)},
+  {id:'s240',   emoji:'🌟', name:'Genius',         desc:'Score 240+ in a game',             check:g=>g.some(x=>Math.max(x.score1||0,x.score2||0)>=240)},
+  {id:'s280',   emoji:'🧠', name:'Einstein',       desc:'Score 280+ in a game',             check:g=>g.some(x=>Math.max(x.score1||0,x.score2||0)>=280)},
+  {id:'s300',   emoji:'🦊', name:'So Clever!',     desc:'Score 300+ in a game',             check:g=>g.some(x=>Math.max(x.score1||0,x.score2||0)>=300)},
+  {id:'str3',   emoji:'🔥', name:'On Fire',        desc:'Win 3 games in a row',             check:g=>{let c=0,m=0,lw=-1;g.forEach(x=>{if(x.winner===lw)c++;else{lw=x.winner;c=1;}m=Math.max(m,c);});return m>=3;}},
+  {id:'str5',   emoji:'💥', name:'Unstoppable',    desc:'Win 5 games in a row',             check:g=>{let c=0,m=0,lw=-1;g.forEach(x=>{if(x.winner===lw)c++;else{lw=x.winner;c=1;}m=Math.max(m,c);});return m>=5;}},
+  {id:'str10',  emoji:'🌋', name:'Reign of Terror',desc:'Win 10 games in a row',            check:g=>{let c=0,m=0,lw=-1;g.forEach(x=>{if(x.winner===lw)c++;else{lw=x.winner;c=1;}m=Math.max(m,c);});return m>=10;}},
+  {id:'close',  emoji:'😅', name:'Squeaker',       desc:'Win by 5 points or fewer',         check:g=>g.some(x=>x.score1>0&&x.score2>0&&Math.abs(x.score1-x.score2)<=5)},
+  {id:'blow',   emoji:'💪', name:'Dominator',      desc:'Win by 50+ points',                check:g=>g.some(x=>x.score1>0&&x.score2>0&&Math.abs(x.score1-x.score2)>=50)},
+  {id:'notes',  emoji:'📝', name:'Storyteller',    desc:'Add a note to a game',             check:g=>g.some(x=>x.note&&x.note.trim())},
+  {id:'perfect',emoji:'🎪', name:'Both Brilliant', desc:'Both players score 220+ in one game', check:g=>g.some(x=>(x.score1||0)>=220&&(x.score2||0)>=220)},
+];
 const LS_KEY = 'gsc_v6';
 
 // ══ OFFICIAL PHRASES ═════════════════════════════════════════════════
@@ -805,21 +904,42 @@ G('gameDate').value=new Date().toISOString().split('T')[0];
 async function addGame(){
   if(!selWinner)return;
   const sc1=parseInt(G('s1').value)||0, sc2=parseInt(G('s2').value)||0;
-  const gm={id:Date.now(),winner:selWinner,starter:parseInt(G('starter').value),score1:sc1,score2:sc2,date:G('gameDate').value};
+
+  // Same-score warning (shouldn't happen in the real game)
+  if(sc1>0&&sc2>0&&sc1===sc2) showToast('⚠️ Both scores are the same — double-check?');
+
+  // Personal best check before saving
+  const prevBest1=games.length?Math.max(...games.map(g=>g.score1||0)):0;
+  const prevBest2=games.length?Math.max(...games.map(g=>g.score2||0)):0;
+  const isPB1=sc1>0&&sc1>prevBest1, isPB2=sc2>0&&sc2>prevBest2;
+
+  const note=(G('gameNote').value||'').trim();
+  const prevGames=[...games];
+  const gm={id:Date.now(),winner:selWinner,starter:parseInt(G('starter').value),score1:sc1,score2:sc2,date:G('gameDate').value,...(note?{note}:{})};
 
   // Reset form immediately so it feels snappy
   selWinner=null;
   G('wb1').classList.remove('sel');G('wb2').classList.remove('sel');
   G('bs1').textContent='Tap to select';G('bs2').textContent='Tap to select';
   G('s1').value='';G('s2').value='';G('sp1').innerHTML='';G('sp2').innerHTML='';
+  G('gameNote').value='';
   G('gameDate').valueAsDate = new Date();
   G('subBtn').disabled=true;G('subBtn').textContent='↑ Pick a winner first!';
 
-  const winScore=gm.winner===1?sc1:sc2, ph=getPhrase(winScore);
-  if(ph&&winScore>0) showScorePopup(winScore,ph,gm.winner===1?p1():p2());
+  const winScore=gm.winner===1?sc1:sc2, winIsPB=gm.winner===1?isPB1:isPB2;
+  const ph=getPhrase(winScore);
+  if(ph&&winScore>0) showScorePopup(winScore,ph,gm.winner===1?p1():p2(),winIsPB);
   else showToast('Game saved! 🎲');
 
+  // Notify if loser also set a personal best
+  const lossIsPB=gm.winner===1?isPB2:isPB1;
+  if(lossIsPB){
+    const ln=gm.winner===1?p2():p1(), ls=gm.winner===1?sc2:sc1;
+    setTimeout(()=>showToast('🏅 '+ln+' also set a new personal best: '+ls+'!'),2000);
+  }
+
   await fbPushGame(gm);
+  checkNewAchievements(prevGames);
 }
 
 async function deleteGame(fbKey){
@@ -845,14 +965,16 @@ function toggleExpand(id){ if(expandedId===id){expandedId=null;editingId=null;}e
 
 // ══ POPUP ════════════════════════════════════════════════════════════
 let popupTimer=null;
-function showScorePopup(score,ph,name){
+function showScorePopup(score,ph,name,isPersonalBest){
   const pop=G('scorePopup'),ov=G('popOverlay');
-  G('popEmoji').textContent=ph.emoji;
+  const pbEl=G('popPB');
+  pbEl.style.display=isPersonalBest?'block':'none';
+  G('popEmoji').textContent=isPersonalBest?'🎉':ph.emoji;
   G('popScore').textContent=score+' pts'; G('popScore').style.color=ph.color;
   G('popPhrase').textContent=ph.phrase;
   G('popName').innerHTML=name+' scored '+score+'<br>'+getStars(ph);
   pop.classList.remove('hide');pop.classList.add('show');ov.classList.add('show');
-  clearTimeout(popupTimer); popupTimer=setTimeout(closePopup,3200);
+  clearTimeout(popupTimer); popupTimer=setTimeout(closePopup,isPersonalBest?4000:3200);
 }
 function closePopup(){
   const pop=G('scorePopup'),ov=G('popOverlay');
@@ -861,7 +983,7 @@ function closePopup(){
 }
 
 // ══ RENDER ═══════════════════════════════════════════════════════════
-function renderAll(){ syncNames();renderScoreboard();renderLeader();renderStats();renderDonut();renderStarterChart();renderScoreChart();renderTimeline();renderHistory(); }
+function renderAll(){ syncNames();renderScoreboard();renderLeader();renderStats();renderDonut();renderStarterChart();renderScoreChart();renderTimeline();renderScoreMarginChart();renderMonthlyBreakdown();renderAchievements();renderHistory(); }
 
 function renderScoreboard(){
   const w1=games.filter(g=>g.winner===1).length,w2=games.filter(g=>g.winner===2).length,t=games.length;
@@ -879,6 +1001,13 @@ function renderScoreboard(){
   const sb=G('streakBadge');
   if(games.length&&streak>1){ sb.textContent=streak+'🔥 '+(sw===1?p1():p2()).substring(0,6); sb.style.color=sw===1?'var(--p1l)':'var(--p2l)'; }
   else sb.textContent='';
+  // Recent form dots
+  [1,2].forEach(p=>{
+    const el=G('form'+p); if(!el)return;
+    const last5=[...games].slice(-5);
+    if(!last5.length){el.innerHTML='';return;}
+    el.innerHTML=last5.map(g=>`<div class="form-dot ${g.winner===p?'win':'loss'}" title="${g.winner===p?'Win':'Loss'}"></div>`).join('');
+  });
 }
 function renderLeader(){
   const w1=games.filter(g=>g.winner===1).length,w2=games.filter(g=>g.winner===2).length,el=G('leaderBanner');
@@ -1059,9 +1188,10 @@ async function saveEdit(fbKey){
   const sc1=parseInt(G('edit-s1').value)||0;
   const sc2=parseInt(G('edit-s2').value)||0;
   const starter=parseInt(G('edit-starter').value);
+  const note=(G('edit-note').value||'').trim();
   const gm=games.find(x=>x.fbKey===fbKey);
   if(!gm){editingId=null;renderHistory();return;}
-  const updated={...gm,score1:sc1,score2:sc2,starter};
+  const updated={...gm,score1:sc1,score2:sc2,starter,note:note||null};
   editingId=null;
   try{
     await fbWrite('games/'+fbKey,{...updated,fbKey:undefined});
@@ -1073,6 +1203,92 @@ async function saveEdit(fbKey){
     lsSave();renderAll();
     showToast('Updated locally (offline)');
   }
+}
+
+// ══ SCORE MARGIN CHART ════════════════════════════════════════════════
+function renderScoreMarginChart(){
+  const svg=G('marginSvg'),scored=games.filter(g=>g.score1>0&&g.score2>0).slice(-20);
+  if(scored.length<2){svg.innerHTML='<text x="12" y="65" fill="var(--muted)" font-family="Nunito" font-size="13" font-weight="700" font-style="italic">Need at least 2 scored games</text>';return;}
+  const W=svg.clientWidth||820,H=130,pL=42,pR=16,pT=12,pB=32;
+  const margins=scored.map(g=>g.score1-g.score2),maxAbs=Math.max(...margins.map(Math.abs),1);
+  const midY=pT+(H-pT-pB)/2,chartH=(H-pT-pB)/2;
+  const barW=Math.max(6,Math.min(28,(W-pL-pR)/scored.length*0.65));
+  const xs=(i,n)=>pL+(i/(Math.max(n-1,1)))*(W-pL-pR);
+  let html='';
+  // Grid lines
+  [-1,0,1].forEach(f=>{const y=midY-f*chartH;html+=`<line x1="${pL}" y1="${y}" x2="${W-pR}" y2="${y}" stroke="${f===0?'rgba(255,255,255,0.2)':'rgba(255,255,255,0.05)'}" stroke-width="${f===0?1.5:1}"/>`;});
+  html+=`<text x="${pL-5}" y="${pT+5}" text-anchor="end" fill="var(--muted)" font-family="DM Mono" font-size="9">+${maxAbs}</text>`;
+  html+=`<text x="${pL-5}" y="${midY+4}" text-anchor="end" fill="var(--muted)" font-family="DM Mono" font-size="9">0</text>`;
+  html+=`<text x="${pL-5}" y="${H-pB+3}" text-anchor="end" fill="var(--muted)" font-family="DM Mono" font-size="9">-${maxAbs}</text>`;
+  // Bars
+  scored.forEach((g,i)=>{
+    const x=xs(i,scored.length),m=g.score1-g.score2;
+    const barH=Math.max(3,Math.abs(m)/maxAbs*chartH);
+    const col=m>0?'var(--p1)':m<0?'var(--p2)':'rgba(255,255,255,0.3)';
+    const y=m>=0?midY-barH:midY;
+    html+=`<rect x="${x-barW/2}" y="${y}" width="${barW}" height="${barH}" rx="3" fill="${col}" opacity="0.85"><title>${p1()}: ${g.score1} — ${p2()}: ${g.score2} (${m>0?'+':''}${m})</title></rect>`;
+  });
+  // Legend
+  html+=`<rect x="${pL}" y="${H-20}" width="10" height="4" rx="2" fill="var(--p1)"/>`;
+  html+=`<text x="${pL+14}" y="${H-13}" fill="var(--p1l)" font-family="Nunito" font-size="9" font-weight="800">${p1()} ahead</text>`;
+  const lx=pL+p1().length*7+58;
+  html+=`<rect x="${lx}" y="${H-20}" width="10" height="4" rx="2" fill="var(--p2)"/>`;
+  html+=`<text x="${lx+14}" y="${H-13}" fill="var(--p2l)" font-family="Nunito" font-size="9" font-weight="800">${p2()} ahead</text>`;
+  svg.innerHTML=html;
+}
+
+// ══ MONTHLY BREAKDOWN ═════════════════════════════════════════════════
+function renderMonthlyBreakdown(){
+  const el=G('monthlyChart');
+  if(!games.length){el.innerHTML='<div style="color:var(--muted);font-size:0.8rem;font-style:italic;font-weight:700">No data yet</div>';return;}
+  const months={};
+  const mn=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  games.forEach(g=>{
+    if(!g.date)return;
+    const key=g.date.substring(0,7);
+    if(!months[key])months[key]={key,w1:0,w2:0,scores:[]};
+    if(g.winner===1)months[key].w1++;else months[key].w2++;
+    if(g.score1>0)months[key].scores.push(g.score1);
+    if(g.score2>0)months[key].scores.push(g.score2);
+  });
+  const sorted=Object.values(months).sort((a,b)=>b.key.localeCompare(a.key));
+  el.innerHTML=`<table class="monthly-table"><thead><tr>
+    <th>Month</th><th style="color:var(--p1l)">${p1()}</th><th style="color:var(--p2l)">${p2()}</th>
+    <th>Games</th><th style="color:var(--yellow)">Avg Score</th>
+  </tr></thead><tbody>${sorted.map(m=>{
+    const [y,mo]=m.key.split('-');
+    const lbl=mn[parseInt(mo)-1]+' '+y;
+    const avg=m.scores.length?Math.round(m.scores.reduce((a,b)=>a+b,0)/m.scores.length):null;
+    const lead=m.w1>m.w2?`<span style="color:var(--p1l)">▲</span>`:m.w2>m.w1?`<span style="color:var(--p2l)">▲</span>`:'';
+    return `<tr><td style="color:var(--cream)">${lbl} ${lead}</td>
+      <td class="mono" style="color:var(--p1l)">${m.w1}</td>
+      <td class="mono" style="color:var(--p2l)">${m.w2}</td>
+      <td class="mono" style="color:var(--muted)">${m.w1+m.w2}</td>
+      <td class="mono" style="color:var(--yellow)">${avg||'—'}</td></tr>`;
+  }).join('')}</tbody></table>`;
+}
+
+// ══ ACHIEVEMENTS ══════════════════════════════════════════════════════
+function renderAchievements(){
+  const el=G('achGrid'),cnt=G('achCount');
+  const unlocked=ACHIEVEMENTS.filter(a=>a.check(games));
+  cnt.textContent=unlocked.length+' / '+ACHIEVEMENTS.length+' unlocked';
+  el.innerHTML=ACHIEVEMENTS.map(a=>{
+    const ok=a.check(games);
+    return `<div class="ach-card ${ok?'unlocked':'locked'}">
+      <span class="ach-emoji">${a.emoji}</span>
+      <div class="ach-name">${a.name}</div>
+      <div class="ach-desc">${a.desc}</div>
+    </div>`;
+  }).join('');
+}
+
+function checkNewAchievements(prevGames){
+  const prev=new Set(ACHIEVEMENTS.filter(a=>a.check(prevGames)).map(a=>a.id));
+  const newOnes=ACHIEVEMENTS.filter(a=>!prev.has(a.id)&&a.check(games));
+  newOnes.forEach((a,i)=>{
+    setTimeout(()=>showToast('🏅 Achievement unlocked: '+a.name+' '+a.emoji),1800+i*2000);
+  });
 }
 
 function fmtDate(d){
@@ -1123,12 +1339,16 @@ function renderHistory(){
             <input id="edit-s2" type="number" value="${sc2}" min="0" max="400">
           </div>
         </div>
-        <div class="edit-field" style="margin-bottom:0">
+        <div class="edit-field">
           <label>Who started?</label>
           <select id="edit-starter">
             <option value="1"${gm.starter===1?' selected':''}>${p1()}</option>
             <option value="2"${gm.starter===2?' selected':''}>${p2()}</option>
           </select>
+        </div>
+        <div class="edit-field" style="margin-bottom:0">
+          <label>Notes</label>
+          <input id="edit-note" type="text" value="${(gm.note||'').replace(/"/g,'&quot;')}" maxlength="120" placeholder="e.g. tournament, rainy day…" style="font-family:'Nunito',sans-serif;font-size:0.88rem;">
         </div>
         <div class="edit-btns">
           <button class="edit-cancel-btn" onclick="event.stopPropagation();cancelEdit()">Cancel</button>
@@ -1136,6 +1356,7 @@ function renderHistory(){
         </div>
       </div>` : `
       ${scoreBlock}
+      ${gm.note?`<div class="note-display">📝 ${gm.note}</div>`:''}
       <div class="game-meta-row">
         <span class="meta-chip"><span>🏆</span>${wName} won</span>
         <span class="meta-chip"><span>🎲</span>${sName} started</span>
@@ -1161,7 +1382,7 @@ function renderHistory(){
 }
 
 function showToast(msg){ const t=G('toast');t.textContent=msg;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2400); }
-let rt; window.addEventListener('resize',()=>{ clearTimeout(rt);rt=setTimeout(()=>{renderScoreChart();renderTimeline();},150); });
+let rt; window.addEventListener('resize',()=>{ clearTimeout(rt);rt=setTimeout(()=>{renderScoreChart();renderTimeline();renderScoreMarginChart();},150); });
 
 // ══ MANUAL SYNC ══════════════════════════════════════════════════════
 async function manualSync(){
