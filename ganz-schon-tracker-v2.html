@@ -344,6 +344,18 @@ h1{font-family:'Fredoka One',cursive;font-size:clamp(2rem,6vw,3.4rem);
 .monthly-table .mono{font-family:'DM Mono',monospace;}
 
 /* ══ ACHIEVEMENTS ══ */
+/* ══ COLLAPSIBLE SECTIONS ══ */
+.collapsible-section{background:var(--card);border:2px solid var(--border);border-radius:var(--radius);margin-bottom:16px;overflow:hidden;}
+.collapsible-header{display:flex;align-items:center;gap:10px;padding:16px 20px;cursor:pointer;user-select:none;transition:background 0.15s;-webkit-tap-highlight-color:transparent;}
+.collapsible-header:hover{background:var(--card2);}
+.collapsible-title{font-family:'Fredoka One',cursive;font-size:1.1rem;color:var(--yellow);flex:1;}
+.collapsible-meta{font-family:'DM Mono',monospace;font-size:0.72rem;color:var(--muted);font-weight:500;}
+.collapsible-chevron{color:var(--muted);font-size:0.85rem;transition:transform 0.3s;flex-shrink:0;}
+.collapsible-body{max-height:0;overflow:hidden;transition:max-height 0.4s ease;}
+.collapsible-section.open .collapsible-body{max-height:9999px;}
+.collapsible-section.open .collapsible-chevron{transform:rotate(180deg);}
+.collapsible-inner{padding:0 20px 20px;}
+/* history-section and achievements-section now use collapsible-section */
 .achievements-section{background:var(--card);border:2px solid var(--border);border-radius:var(--radius);
   padding:20px;margin-bottom:16px;}
 .ach-header{display:flex;align-items:center;gap:10px;margin-bottom:14px;}
@@ -572,26 +584,39 @@ h1{font-family:'Fredoka One',cursive;font-size:clamp(2rem,6vw,3.4rem);
     </div>
   </div>
 
-  <!-- ACHIEVEMENTS -->
-  <div class="achievements-section">
-    <div class="ach-header">
-      <span class="ach-title">🏅 Achievements</span>
-      <span class="ach-count" id="achCount"></span>
+  <!-- HISTORY (collapsible) -->
+  <div class="collapsible-section" id="historySection">
+    <div class="collapsible-header" onclick="toggleSection('historySection')">
+      <span class="collapsible-title">📋 Game History</span>
+      <span class="collapsible-meta" id="historyMeta"></span>
+      <span class="collapsible-chevron">▼</span>
     </div>
-    <div class="ach-grid" id="achGrid"></div>
+    <div class="collapsible-body">
+      <div class="collapsible-inner">
+        <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:14px;">
+          <button class="filter-btn active" onclick="setFilter('all',this)">All</button>
+          <button class="filter-btn" id="fBtn1" onclick="setFilter('p1',this)">Sofia</button>
+          <button class="filter-btn" id="fBtn2" onclick="setFilter('p2',this)">Joey</button>
+          <button class="clear-btn" onclick="clearAll()">Clear All</button>
+        </div>
+        <div class="history-list" id="historyList">
+          <div class="empty-state"><span class="big">🎲</span>Your game history will appear here!</div>
+        </div>
+      </div>
+    </div>
   </div>
 
-  <!-- HISTORY -->
-  <div class="history-section">
-    <div class="history-top">
-      <div class="history-title">📋 Game History</div>
-      <button class="filter-btn active" onclick="setFilter('all',this)">All</button>
-      <button class="filter-btn" id="fBtn1" onclick="setFilter('p1',this)">Sofia</button>
-      <button class="filter-btn" id="fBtn2" onclick="setFilter('p2',this)">Joey</button>
-      <button class="clear-btn" onclick="clearAll()">Clear All</button>
+  <!-- ACHIEVEMENTS (collapsible) -->
+  <div class="collapsible-section" id="achSection">
+    <div class="collapsible-header" onclick="toggleSection('achSection')">
+      <span class="collapsible-title">🏅 Achievements</span>
+      <span class="collapsible-meta" id="achCount"></span>
+      <span class="collapsible-chevron">▼</span>
     </div>
-    <div class="history-list" id="historyList">
-      <div class="empty-state"><span class="big">🎲</span>Your game history will appear here!</div>
+    <div class="collapsible-body">
+      <div class="collapsible-inner">
+        <div class="ach-grid" id="achGrid"></div>
+      </div>
     </div>
   </div>
 
@@ -905,9 +930,6 @@ async function addGame(){
   if(!selWinner)return;
   const sc1=parseInt(G('s1').value)||0, sc2=parseInt(G('s2').value)||0;
 
-  // Same-score warning (shouldn't happen in the real game)
-  if(sc1>0&&sc2>0&&sc1===sc2) showToast('⚠️ Both scores are the same — double-check?');
-
   // Personal best check before saving
   const prevBest1=games.length?Math.max(...games.map(g=>g.score1||0)):0;
   const prevBest2=games.length?Math.max(...games.map(g=>g.score2||0)):0;
@@ -954,6 +976,11 @@ async function clearAll(){
   try{ await fbWrite('games', null); await sync(); }
   catch(e){ games=[];lsSave();renderAll(); }
   showToast('All games cleared.');
+}
+
+function toggleSection(id){
+  const el=G(id);
+  el.classList.toggle('open');
 }
 
 function setFilter(m,btn){
@@ -1304,6 +1331,8 @@ function renderHistory(){
   });
   if(filterMode==='p1')list=list.filter(x=>x.winner===1);
   if(filterMode==='p2')list=list.filter(x=>x.winner===2);
+  const hm=G('historyMeta');
+  if(hm)hm.textContent=games.length?games.length+' game'+(games.length!==1?'s':''):'';
   if(!list.length){el.innerHTML='<div class="empty-state"><span class="big">🎲</span>No games to show yet!</div>';return;}
   el.innerHTML=list.map(gm=>{
     const num=games.length-games.findIndex(x=>x.fbKey===gm.fbKey);
