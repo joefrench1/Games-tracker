@@ -375,10 +375,10 @@ let gDate         = new Date().toISOString().split('T')[0];
 let gNote         = '';
 
 // ══ HELPERS ═════════════════════════════════════════════
-const G   = id => document.getElementById(id);
-const H   = s  => String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
-const pid2p = id => players.find(p => String(p.id) === String(id)) || null;
-const clr   = idx => COLORS[idx % COLORS.length];
+function G(id){ return document.getElementById(id); }
+function H(s){ return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+function pid2p(id){ return players.find(p => String(p.id) === String(id)) || null; }
+function clr(idx){ return COLORS[idx % COLORS.length]; }
 // Firebase may store totals as {p_123: 45} (safe format) or {123: 45} (old format)
 // This normalises both to plain pid strings
 function normTotals(totals){
@@ -389,6 +389,13 @@ function normTotals(totals){
     out[pid]=Number(v);
   });
   return out;
+}
+// Firebase converts JS arrays to objects {0:x,1:y} — this turns them back
+function toArr(v){
+  if(!v) return [];
+  if(Array.isArray(v)) return v.map(String).filter(Boolean);
+  if(typeof v==='object') return Object.values(v).map(String).filter(Boolean);
+  return [];
 }
 function nextColorIdx(){ const u=players.map(p=>p.colorIdx); for(let i=0;i<COLORS.length;i++) if(!u.includes(i)) return i; return players.length%COLORS.length; }
 function fmtDate(d){ if(!d)return'—'; const p=d.split('-'); if(p.length!==3)return d; return ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'][+p[1]-1]+' '+parseInt(p[2])+', '+p[0]; }
@@ -434,13 +441,25 @@ async function sync(){
     const ng=obj2arr(d&&d.games).map(g=>({
       ...g,
       totals: normTotals(g.totals),
-      playerIds: (g.playerIds||[]).map(String)
+      playerIds: toArr(g.playerIds),
+      rounds: (Array.isArray(g.rounds)?g.rounds:Object.values(g.rounds||{})).map(rd=>({
+        scores: rd.scores||{},
+        maki: {
+          mostPids:   toArr(rd.maki&&rd.maki.mostPids),
+          secondPids: toArr(rd.maki&&rd.maki.secondPids)
+        },
+        pudding: {
+          mostPids:  toArr(rd.pudding&&rd.pudding.mostPids),
+          leastPids: toArr(rd.pudding&&rd.pudding.leastPids)
+        }
+      }))
     }));
     const np=obj2arr(d&&d.players);
     const h=JSON.stringify({g:ng,p:np});
     if(h!==lastHash){ lastHash=h; games=ng; players=np; lsSave(); renderAll(); }
   }catch(e){
-    setStatus('error', attempts<=1?'Error: '+e.message:'Offline — using local data');
+    const msg=e&&e.message?e.message:String(e);
+    setStatus('error','Error: '+msg+' — tap Retry');
     renderAll();
   }
 }
@@ -731,20 +750,17 @@ function renderTotBar(r){
 function roundPts(pid, r){
   const rd=roundData[r]; if(!rd)return 0;
   let pts=0;
-  if(rd.scores) pts+=Number(rd.scores[pid])||0;
+  if(rd.scores) pts+=Number(rd.scores[String(pid)])||0;
   if(rd.maki){
-    const m=rd.maki;
-    const mostPids=(m.mostPids||[]).map(String);
-    const secondPids=(m.secondPids||[]).map(String);
+    const mostPids=toArr(rd.maki&&rd.maki.mostPids);
+    const secondPids=toArr(rd.maki&&rd.maki.secondPids);
     const isMostTied=mostPids.length>1;
     if(mostPids.includes(String(pid))) pts += +(6/mostPids.length).toFixed(2);
-    // 2nd place only awarded if 1st place is NOT tied
     if(!isMostTied && secondPids.includes(String(pid))) pts += +(3/secondPids.length).toFixed(2);
   }
   if(r===2 && rd.pudding){
-    const pu=rd.pudding;
-    const mostPids=(pu.mostPids||[]).map(String);
-    const leastPids=(pu.leastPids||[]).map(String);
+    const mostPids=toArr(rd.pudding&&rd.pudding.mostPids);
+    const leastPids=toArr(rd.pudding&&rd.pudding.leastPids);
     if(mostPids.includes(String(pid)))  pts += +(6/mostPids.length).toFixed(2);
     if(leastPids.includes(String(pid))) pts += +(-6/leastPids.length).toFixed(2);
   }
@@ -806,8 +822,8 @@ function showRoundSummary(r){
     const cardPts=Number((rd.scores||{})[pid])||0;
     if(cardPts) parts.push('Cards: +'+cardPts);
     if(rd.maki){
-      const mostPids=(rd.maki.mostPids||[]).map(String);
-      const secondPids=(rd.maki.secondPids||[]).map(String);
+      const mostPids=toArr(rd.maki&&rd.maki.mostPids);
+      const secondPids=toArr(rd.maki&&rd.maki.secondPids);
       const isMostTied=mostPids.length>1;
       if(mostPids.includes(String(pid))) parts.push('Maki 1st: +'+(+(6/mostPids.length).toFixed(1)));
       if(!isMostTied && secondPids.includes(String(pid))) parts.push('Maki 2nd: +'+(+(3/secondPids.length).toFixed(1)));
@@ -914,7 +930,7 @@ function renderLeaderboard(){
   const el=G('lbTable');
   if(!players.length){ el.innerHTML='<div style="color:var(--muted);font-style:italic;font-size:0.88rem;font-weight:700;padding:12px 0">Add players above to get started!</div>'; return; }
   const rows=players.map(p=>{
-    const myG=games.filter(g=>g.playerIds&&g.playerIds.map(String).includes(String(p.id)));
+    const myG=games.filter(g=>toArr(g.playerIds).includes(String(p.id)));
     const wins=myG.filter(g=>String(g.winner)===String(p.id)).length;
     const scores=myG.map(g=>g.totals&&g.totals[p.id]!=null?Number(g.totals[p.id]):null).filter(s=>s!==null);
     const best=scores.length?Math.max(...scores):null;
@@ -953,7 +969,7 @@ function renderLeaderboard(){
 function showStats(pid){
   pid=String(pid); const p=pid2p(pid); if(!p){ showToast('Player not found'); return; }
   const pc=clr(p.colorIdx);
-  const myG=games.filter(g=>g.playerIds&&g.playerIds.map(String).includes(pid));
+  const myG=games.filter(g=>toArr(g.playerIds).includes(pid));
   const wins=myG.filter(g=>String(g.winner)===pid).length;
   const scores=myG.map(g=>g.totals&&g.totals[p.id]!=null?Number(g.totals[p.id]):null).filter(s=>s!==null);
   const best=scores.length?Math.max(...scores):null;
@@ -961,7 +977,7 @@ function showStats(pid){
   const wr=myG.length?Math.round(wins/myG.length*100):0;
 
   const h2h=players.filter(op=>String(op.id)!==pid).map(op=>{
-    const shared=myG.filter(g=>g.playerIds&&g.playerIds.map(String).includes(String(op.id)));
+    const shared=myG.filter(g=>toArr(g.playerIds).includes(String(op.id)));
     return{op,n:shared.length,mw:shared.filter(g=>String(g.winner)===pid).length,ow:shared.filter(g=>String(g.winner)===String(op.id)).length};
   }).filter(x=>x.n>0);
 
@@ -1027,7 +1043,7 @@ function renderCharts(){
   const wc=G('winsChart'), ac=G('avgChart');
   if(!players.length){ wc.innerHTML=ac.innerHTML='<div style="color:var(--muted);font-size:0.8rem;font-style:italic;font-weight:700">No players yet</div>'; return; }
   const data=players.map(p=>{
-    const myG=games.filter(g=>g.playerIds&&g.playerIds.map(String).includes(String(p.id)));
+    const myG=games.filter(g=>toArr(g.playerIds).includes(String(p.id)));
     const wins=myG.filter(g=>String(g.winner)===String(p.id)).length;
     const scores=myG.map(g=>g.totals&&g.totals[p.id]!=null?Number(g.totals[p.id]):null).filter(s=>s!==null);
     const avg=scores.length?Math.round(scores.reduce((a,b)=>a+b,0)/scores.length):0;
@@ -1086,7 +1102,7 @@ function renderHistory(){
     const wp=pid2p(gm.winner), pc=wp?clr(wp.colorIdx):{c:'var(--muted)',l:'var(--muted)',bg:'rgba(255,255,255,0.05)'};
     const fk=H(gm.fbKey||''), isExp=expandedId===gm.fbKey;
     const isBest=gm.fbKey&&gm.fbKey===bestGameFbKey&&games.length>1;
-    const pids=(gm.playerIds||[]).map(String);
+    const pids=toArr(gm.playerIds);
     const sorted2=[...pids].sort((a,b)=>(Number((gm.totals||{})[b])||0)-(Number((gm.totals||{})[a])||0));
     const scoreRows=sorted2.map(pid=>{
       const pp=pid2p(pid), ppc=pp?clr(pp.colorIdx):{l:'var(--muted)'};
@@ -1123,17 +1139,17 @@ function renderHistory(){
 function histRoundPts(gm, pid, r){
   if(!gm.rounds||!gm.rounds[r])return null;
   const rd=gm.rounds[r]; let pts=0;
-  if(rd.scores) pts+=Number(rd.scores[pid])||0;
+  if(rd.scores) pts+=Number(rd.scores[String(pid)])||0;
   if(rd.maki){
-    const mostPids=(rd.maki.mostPids||[]).map(String);
-    const secondPids=(rd.maki.secondPids||[]).map(String);
+    const mostPids=toArr(rd.maki.mostPids);
+    const secondPids=toArr(rd.maki.secondPids);
     const isMostTied=mostPids.length>1;
     if(mostPids.includes(String(pid))) pts+=+(6/mostPids.length).toFixed(2);
     if(!isMostTied && secondPids.includes(String(pid))) pts+=+(3/secondPids.length).toFixed(2);
   }
   if(r===2&&rd.pudding){
-    const mostPids=(rd.pudding.mostPids||[]).map(String);
-    const leastPids=(rd.pudding.leastPids||[]).map(String);
+    const mostPids=toArr(rd.pudding.mostPids);
+    const leastPids=toArr(rd.pudding.leastPids);
     if(mostPids.includes(String(pid)))  pts+=+(6/mostPids.length).toFixed(2);
     if(leastPids.includes(String(pid))) pts+=+(-6/leastPids.length).toFixed(2);
   }
