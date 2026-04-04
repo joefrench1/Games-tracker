@@ -73,12 +73,31 @@ h1{font-family:'Fredoka One',cursive;font-size:clamp(2rem,6vw,3.2rem);background
 .sec-label{font-size:0.68rem;text-transform:uppercase;letter-spacing:0.14em;color:var(--muted);font-weight:800;margin-bottom:10px;display:flex;align-items:center;gap:10px;}
 .sec-label::after{content:'';flex:1;height:1px;background:var(--border);}
 
-/* PHASE 1 — player selection */
-.ptoggle-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(120px,1fr));gap:8px;margin-bottom:18px;}
-.ptoggle{border:2.5px solid transparent;border-radius:12px;cursor:pointer;display:flex;align-items:center;gap:8px;padding:10px 14px;transition:all 0.2s;background:var(--card2);font-family:'Nunito',sans-serif;font-weight:800;font-size:0.9rem;}
-.ptoggle.on{box-shadow:0 0 18px var(--glow);}
-.ptoggle .pdot{width:10px;height:10px;border-radius:50%;flex-shrink:0;}
-.btn-start{width:100%;background:linear-gradient(135deg,var(--pink),var(--coral));border:none;border-radius:12px;color:#3a0010;font-family:'Fredoka One',cursive;font-size:1.05rem;letter-spacing:0.04em;padding:14px;cursor:pointer;transition:all 0.2s;box-shadow:0 4px 16px rgba(255,107,157,0.3);}
+/* PHASE 1 — player avatar selection (integrated into leaderboard) */
+.lb-avatar-row{display:flex;align-items:center;gap:12px;padding:10px 8px;border-radius:12px;cursor:pointer;transition:background 0.15s;user-select:none;}
+.lb-avatar-row:hover{background:var(--card2);}
+.lb-avatar{width:42px;height:42px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:'Fredoka One',cursive;font-size:1.1rem;flex-shrink:0;transition:all 0.2s;border:3px solid transparent;position:relative;}
+.lb-avatar.selected{border-color:var(--pal);box-shadow:0 0 0 4px var(--paglow),0 0 16px var(--paglow);}
+.lb-avatar .av-check{position:absolute;bottom:-2px;right:-2px;width:16px;height:16px;background:var(--pal);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:0.6rem;border:2px solid var(--bg);opacity:0;transition:opacity 0.2s;}
+.lb-avatar.selected .av-check{opacity:1;}
+.lb-av-info{flex:1;min-width:0;}
+.lb-av-name{font-family:'Fredoka One',cursive;font-size:1rem;line-height:1.2;}
+.lb-av-sub{font-size:0.68rem;color:var(--muted);font-weight:700;margin-top:1px;}
+.lb-av-wins{font-family:'Fredoka One',cursive;font-size:1.3rem;min-width:28px;text-align:right;}
+
+/* Floating start bar that appears at bottom when players selected */
+.start-bar{position:fixed;bottom:0;left:0;right:0;z-index:200;
+  background:rgba(15,25,35,0.97);border-top:2px solid var(--border);
+  backdrop-filter:blur(12px);padding:10px 16px 14px;
+  transform:translateY(100%);transition:transform 0.3s cubic-bezier(0.34,1.56,0.64,1);}
+.start-bar.visible{transform:translateY(0);}
+.start-bar-inner{max-width:940px;margin:0 auto;display:flex;flex-direction:column;gap:10px;}
+.start-bar-players{display:flex;gap:8px;align-items:center;flex-wrap:wrap;}
+.start-bar-chip{display:flex;align-items:center;gap:5px;padding:4px 10px;border-radius:20px;font-size:0.78rem;font-weight:800;font-family:'Nunito',sans-serif;}
+.start-bar-extras{display:grid;grid-template-columns:1fr 1fr;gap:8px;}
+.start-bar-input{background:var(--card2);border:2px solid var(--border);border-radius:10px;color:var(--cream);font-family:'Nunito',sans-serif;font-size:0.88rem;font-weight:700;padding:8px 12px;outline:none;width:100%;transition:border-color 0.2s;}
+.start-bar-input:focus{border-color:var(--pink);}
+.btn-start{width:100%;background:linear-gradient(135deg,var(--pink),var(--coral));border:none;border-radius:12px;color:#3a0010;font-family:'Fredoka One',cursive;font-size:1.05rem;letter-spacing:0.04em;padding:13px;cursor:pointer;transition:all 0.2s;box-shadow:0 4px 16px rgba(255,107,157,0.3);}
 .btn-start:hover:not(:disabled){transform:translateY(-2px);box-shadow:0 8px 28px rgba(255,107,157,0.45);}
 .btn-start:disabled{opacity:0.35;cursor:not-allowed;box-shadow:none;}
 
@@ -218,6 +237,8 @@ h1{font-family:'Fredoka One',cursive;font-size:clamp(2rem,6vw,3.2rem);background
 /* SAVE BAR */
 .save-bar{position:fixed;bottom:0;left:0;right:0;background:rgba(15,25,35,0.96);border-top:1px solid var(--border);backdrop-filter:blur(10px);display:flex;flex-direction:column;align-items:center;gap:6px;padding:8px 16px 12px;z-index:100;}
 .save-hint{font-size:0.75rem;font-weight:700;color:var(--muted);}
+.toast{position:fixed;top:20px;left:50%;transform:translateX(-50%) translateY(-80px);background:var(--card2);border:2px solid var(--border);border-radius:12px;color:var(--cream);font-size:0.88rem;font-weight:700;padding:10px 20px;transition:transform 0.35s cubic-bezier(0.34,1.56,0.64,1);z-index:9999;white-space:nowrap;}
+.toast.show{transform:translateX(-50%) translateY(0);}
 
 /* ROUND SUMMARY MODAL */
 .rsm-table{width:100%;border-collapse:collapse;margin:12px 0;}
@@ -228,14 +249,24 @@ h1{font-family:'Fredoka One',cursive;font-size:clamp(2rem,6vw,3.2rem);background
 .rsm-table tr.rsm-winner td{font-weight:900;}
 .rsm-rank{font-family:'Fredoka One',cursive;font-size:1.1rem;}
 .rsm-total{font-family:'Fredoka One',cursive;font-size:1.2rem;}
-.toast{position:fixed;top:20px;left:50%;transform:translateX(-50%) translateY(-80px);background:var(--card2);border:2px solid var(--border);border-radius:12px;color:var(--cream);font-size:0.88rem;font-weight:700;padding:10px 20px;transition:transform 0.35s cubic-bezier(0.34,1.56,0.64,1);z-index:9999;white-space:nowrap;}
-.toast.show{transform:translateX(-50%) translateY(0);}
+
+/* COLLAPSIBLE SECTIONS */
+.coll-section{background:var(--card);border:2px solid var(--border);border-radius:var(--radius);margin-bottom:16px;overflow:hidden;box-shadow:0 4px 20px rgba(0,0,0,0.2);}
+.coll-header{cursor:pointer;padding:16px 20px;display:flex;align-items:center;gap:10px;user-select:none;transition:background 0.15s;}
+.coll-header:hover{background:var(--card2);}
+.coll-title{font-family:'Fredoka One',cursive;font-size:1.05rem;color:var(--cream);flex:1;}
+.coll-meta{font-size:0.72rem;color:var(--muted);font-weight:700;}
+.coll-chevron{color:var(--muted);transition:transform 0.3s;font-size:0.82rem;}
+.coll-section.open .coll-chevron{transform:rotate(180deg);}
+.coll-body{max-height:0;overflow:hidden;transition:max-height 0.4s ease;}
+.coll-section.open .coll-body{max-height:3000px;}
+.coll-inner{padding:0 16px 18px;}
 
 @media(max-width:640px){
   .stats-row{grid-template-columns:1fr 1fr;}
   .charts-grid{grid-template-columns:1fr;}.chart-card.full{grid-column:1;}
   .lb-row{grid-template-columns:32px 1fr 46px 44px 52px!important;}
-  .lb-best,.lb-stats-btn,.lb-del-btn{display:none!important;}
+  /* avatar sub-text wraps naturally on small screens */
 }
 </style>
 </head>
@@ -263,32 +294,41 @@ h1{font-family:'Fredoka One',cursive;font-size:clamp(2rem,6vw,3.2rem);background
     <div id="lbTable"></div>
   </div>
 
-  <!-- RECORD GAME -->
-  <div class="record-panel"><div id="recordInner"></div></div>
+  <!-- SCORING PANEL (hidden in select phase, shown during scoring) -->
+  <div class="record-panel" id="scoringPanel" style="display:none"><div id="recordInner"></div></div>
 
-  <!-- STATS -->
-  <div class="stats-row">
-    <div class="stat-pill"><div class="val" id="stTotal">0</div><div class="lbl">Games Played</div></div>
-    <div class="stat-pill"><div class="val" id="stPlayers">0</div><div class="lbl">Players</div></div>
-    <div class="stat-pill"><div class="val" id="stStreak">—</div><div class="lbl">Best Streak</div><div class="sub" id="stStreakSub" style="color:var(--pink2)"></div></div>
-    <div class="stat-pill"><div class="val" id="stTop">—</div><div class="lbl">Top Score</div><div class="sub" id="stTopSub" style="color:var(--yellow)"></div></div>
-  </div>
-
-  <!-- CHARTS -->
-  <div class="charts-grid">
-    <div class="chart-card"><div class="chart-title">Wins per Player</div><div class="bar-chart" id="winsChart"></div></div>
-    <div class="chart-card"><div class="chart-title">Avg Score per Player</div><div class="bar-chart" id="avgChart"></div></div>
-    <div class="chart-card full">
-      <div class="chart-title">Score History — Last 20 Games</div>
-      <div style="overflow-x:auto"><svg id="scoreSvg" height="200" width="100%" style="display:block"></svg></div>
+  <!-- STATISTICS COLLAPSIBLE (closed by default) -->
+  <div class="coll-section" id="statsSection">
+    <div class="coll-header" onclick="toggleColl('statsSection')">
+      <span class="coll-title">📊 Statistics</span>
+      <span class="coll-meta" id="statsMeta"></span>
+      <span class="coll-chevron">▼</span>
     </div>
-    <div class="chart-card full">
-      <div class="chart-title">Win History — Last 20 Games</div>
-      <div style="overflow-x:auto"><svg id="timelineSvg" height="80" width="100%" style="display:block"></svg></div>
-    </div>
-    <div class="chart-card full">
-      <div class="chart-title">Monthly Breakdown</div>
-      <div id="monthlyChart"><div style="color:var(--muted);font-size:0.8rem;font-style:italic;font-weight:700">No data yet</div></div>
+    <div class="coll-body">
+      <div class="coll-inner">
+        <div class="stats-row" style="margin-bottom:16px">
+          <div class="stat-pill"><div class="val" id="stTotal">0</div><div class="lbl">Games Played</div></div>
+          <div class="stat-pill"><div class="val" id="stPlayers">0</div><div class="lbl">Players</div></div>
+          <div class="stat-pill"><div class="val" id="stStreak">—</div><div class="lbl">Best Streak</div><div class="sub" id="stStreakSub" style="color:var(--pink2)"></div></div>
+          <div class="stat-pill"><div class="val" id="stTop">—</div><div class="lbl">Top Score</div><div class="sub" id="stTopSub" style="color:var(--yellow)"></div></div>
+        </div>
+        <div class="charts-grid">
+          <div class="chart-card"><div class="chart-title">Wins per Player</div><div class="bar-chart" id="winsChart"></div></div>
+          <div class="chart-card"><div class="chart-title">Avg Score per Player</div><div class="bar-chart" id="avgChart"></div></div>
+          <div class="chart-card full">
+            <div class="chart-title">Score History — Last 20 Games</div>
+            <div style="overflow-x:auto"><svg id="scoreSvg" height="200" width="100%" style="display:block"></svg></div>
+          </div>
+          <div class="chart-card full">
+            <div class="chart-title">Win History — Last 20 Games</div>
+            <div style="overflow-x:auto"><svg id="timelineSvg" height="80" width="100%" style="display:block"></svg></div>
+          </div>
+          <div class="chart-card full">
+            <div class="chart-title">Monthly Breakdown</div>
+            <div id="monthlyChart"><div style="color:var(--muted);font-size:0.8rem;font-style:italic;font-weight:700">No data yet</div></div>
+          </div>
+        </div>
+      </div>
     </div>
   </div>
 
@@ -300,6 +340,18 @@ h1{font-family:'Fredoka One',cursive;font-size:clamp(2rem,6vw,3.2rem);background
       <button class="clear-btn" onclick="clearAll()">Clear All</button>
     </div>
     <div id="histList"><div class="empty-state"><span class="big">🍣</span>Your game history will appear here!</div></div>
+  </div>
+</div>
+
+<!-- FLOATING START BAR (shown during player selection) -->
+<div class="start-bar" id="startBar">
+  <div class="start-bar-inner">
+    <div class="start-bar-players" id="startBarPlayers"></div>
+    <div class="start-bar-extras">
+      <input type="date" id="gdi" class="start-bar-input" oninput="gDate=this.value">
+      <input type="text" id="gni" class="start-bar-input" maxlength="80" placeholder="Note (optional)…" oninput="gNote=this.value">
+    </div>
+    <button class="btn-start" id="startBtn" onclick="startScoring()">🍣 Start Game →</button>
   </div>
 </div>
 
@@ -597,65 +649,39 @@ async function renamePlayer(id,name){
 function resetGame(){
   phase='select'; activePids=[]; currentRound=0;
   roundData=[{},{},{}]; gDate=new Date().toISOString().split('T')[0]; gNote='';
-  renderRecord();
+  // Clear the start bar inputs
+  const di=G('gdi'), ni=G('gni');
+  if(di){ di.value=''; di.valueAsDate=new Date(); }
+  if(ni) ni.value='';
+  const sp=G('scoringPanel'); if(sp) sp.style.display='none';
+  G('recordInner').innerHTML=''; // clear scoring UI
+  renderLeaderboard(); // re-renders leaderboard with selection mode active + shows start bar
 }
 
 // ─── RENDER RECORD PANEL ────────────────────────────────
+// Selection phase is now handled via the leaderboard avatars + floating start bar.
+// This function only renders the scoring phase.
 function renderRecord(){
-  if(phase==='select') renderSelect();
-  else                 renderScoring();
-}
-
-// ─── PHASE 1: Select players ────────────────────────────
-function renderSelect(){
-  if(!players.length){
-    G('recordInner').innerHTML='<div class="panel-title">🍣 New Game</div><p style="color:var(--muted);font-weight:700;font-size:0.9rem">Add players using the leaderboard above first!</p>';
-    return;
+  if(phase==='scoring') renderScoring();
+  else {
+    // In select phase, the record panel is hidden / empty
+    const ri=G('recordInner');
+    if(ri) ri.innerHTML='';
   }
-  const btns=players.map(p=>{
-    const pc=clr(p.colorIdx), on=activePids.includes(String(p.id));
-    return `<button class="ptoggle${on?' on':''}"
-      data-pid="${H(String(p.id))}"
-      style="border-color:${on?pc.c:pc.c+'44'};color:${on?pc.l:'var(--muted)'};${on?'background:'+pc.bg:''};--glow:${pc.glow}"
-      onclick="togglePid(this.dataset.pid)">
-      <div class="pdot" style="background:${pc.c}"></div>${H(p.name)}
-    </button>`;
-  }).join('');
-  G('recordInner').innerHTML=`
-    <div class="panel-title">🍣 New Game — Who's playing?</div>
-    <div class="sec-label">Select players (min 2)</div>
-    <div class="ptoggle-grid">${btns}</div>
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:16px">
-      <div>
-        <div class="sec-label" style="margin-bottom:6px">Date</div>
-        <input type="date" id="gdi" value="${gDate}"
-          style="background:var(--card2);border:2px solid var(--border);border-radius:10px;color:var(--cream);font-family:'Nunito',sans-serif;font-size:0.88rem;font-weight:700;padding:9px 12px;outline:none;width:100%;"
-          oninput="gDate=this.value">
-      </div>
-      <div>
-        <div class="sec-label" style="margin-bottom:6px">Note</div>
-        <input type="text" id="gni" value="${H(gNote)}" maxlength="80" placeholder="e.g. pub night…"
-          style="background:var(--card2);border:2px solid var(--border);border-radius:10px;color:var(--cream);font-family:'Nunito',sans-serif;font-size:0.88rem;font-weight:700;padding:9px 12px;outline:none;width:100%;"
-          oninput="gNote=this.value">
-      </div>
-    </div>
-    <button class="btn-start" id="startBtn" onclick="startScoring()" ${activePids.length<2?'disabled':''}>
-      Start Game (${activePids.length} player${activePids.length!==1?'s':''}) →
-    </button>`;
 }
 
 function togglePid(pid){
+  if(phase!=='select') return; // don't toggle during scoring
   pid=String(pid);
   const i=activePids.indexOf(pid);
   if(i>=0) activePids.splice(i,1); else activePids.push(pid);
-  if(G('gdi')) gDate=G('gdi').value;
-  if(G('gni')) gNote=G('gni').value;
-  renderSelect();
+  renderLeaderboard(); // re-render to update selected state
 }
 
 function startScoring(){
-  if(G('gdi')) gDate=G('gdi').value;
-  if(G('gni')) gNote=G('gni').value;
+  const di=G('gdi'), ni=G('gni');
+  if(di) gDate=di.value||new Date().toISOString().split('T')[0];
+  if(ni) gNote=ni.value||'';
   if(activePids.length<2){ showToast('Select at least 2 players!'); return; }
   roundData=[{},{},{}];
   activePids.forEach(pid=>{
@@ -664,11 +690,16 @@ function startScoring(){
       roundData[r].scores[pid]=0;
     }
   });
-  phase='scoring'; currentRound=0; renderScoring();
+  phase='scoring'; currentRound=0;
+  // Hide start bar
+  const bar=G('startBar'); if(bar) bar.classList.remove('visible');
+  renderScoring();
 }
 
 // ─── PHASE 2: Scoring ───────────────────────────────────
 function renderScoring(){
+  // Show scoring panel, hide during select
+  const sp=G('scoringPanel'); if(sp) sp.style.display='block';
   const r=currentRound, rd=roundData[r];
   if(!rd.scores) rd.scores={};
   activePids.forEach(pid=>{ if(rd.scores[pid]===undefined) rd.scores[pid]=0; });
@@ -870,8 +901,7 @@ function togglePudding(key,pid){
 function saveInputs(){
   const rd=roundData[currentRound]; if(!rd.scores) rd.scores={};
   activePids.forEach(pid=>{ const el=G('si_'+pid); if(el) rd.scores[pid]=Math.max(0,parseInt(el.value)||0); });
-  if(G('gdi')) gDate=G('gdi').value;
-  if(G('gni')) gNote=G('gni').value;
+  // gDate and gNote were already captured from start-bar inputs when startScoring() was called
 }
 function switchRound(r){ saveInputs(); currentRound=r; renderScoring(); }
 function nextRound(){ saveInputs(); if(currentRound<2){ showRoundSummary(currentRound); } }
@@ -996,12 +1026,28 @@ async function clearAll(){
 function showToast(msg){ const t=G('toast'); t.textContent=msg; t.classList.add('show'); setTimeout(()=>t.classList.remove('show'),2400); }
 
 // ══ RENDER ALL ══════════════════════════════════════════
-function renderAll(){ renderLeaderboard(); renderLeader(); renderRecord(); renderStats(); renderCharts(); renderScoreChart(); renderTimeline(); renderMonthly(); renderHistory(); }
+function toggleColl(id){
+  const el=G(id); if(!el)return;
+  el.classList.toggle('open');
+  // Re-render charts when opened so SVGs size correctly
+  if(el.classList.contains('open')){ renderScoreChart(); renderTimeline(); }
+}
 
-// ─── LEADERBOARD (FIX #7: best score + stats btn) ───────
+function renderAll(){ renderLeaderboard(); renderLeader(); renderRecord(); renderStats(); renderCharts(); renderScoreChart(); renderTimeline(); renderMonthly(); renderHistory(); updateStartBar(); updateStatsMeta(); }
+
+function updateStatsMeta(){
+  const el=G('statsMeta'); if(!el)return;
+  el.textContent=games.length?games.length+' game'+(games.length!==1?'s':''):'';
+}
+
+// ─── LEADERBOARD — avatar rows, tap to select for next game ─────────────────
 function renderLeaderboard(){
   const el=G('lbTable');
-  if(!players.length){ el.innerHTML='<div style="color:var(--muted);font-style:italic;font-size:0.88rem;font-weight:700;padding:12px 0">Add players above to get started!</div>'; return; }
+  if(!players.length){
+    el.innerHTML='<div style="color:var(--muted);font-style:italic;font-size:0.88rem;font-weight:700;padding:12px 0">Add players above to get started!</div>';
+    updateStartBar();
+    return;
+  }
   const rows=players.map(p=>{
     const myG=games.filter(g=>toArr(g.playerIds).includes(String(p.id)));
     const wins=myG.filter(g=>String(g.winner)===String(p.id)).length;
@@ -1012,30 +1058,73 @@ function renderLeaderboard(){
   }).sort((a,b)=>b.wins-a.wins||(b.wr-a.wr));
 
   const medals=['🥇','🥈','🥉'];
-  let html=`<div class="lb-row lb-hdr">
-    <span></span><span>Player</span>
-    <span style="text-align:center">Wins</span><span style="text-align:center">Played</span>
-    <span style="text-align:center">Win%</span><span style="text-align:center">Best 🏅</span>
-    <span></span><span></span>
-  </div>`;
+  let html='';
   rows.forEach((r,i)=>{
-    const pc=clr(r.p.colorIdx), fk=H(String(r.p.id));
-    html+=`<div class="lb-row">
-      <span class="lb-rank${i===0?' rank-1':''}">${medals[i]||'#'+(i+1)}</span>
-      <div class="lb-name-cell">
-        <div class="lb-dot" style="background:${pc.c}"></div>
-        <input class="lb-name-input" style="color:${pc.l}" value="${H(r.p.name)}"
-          data-pid="${fk}" onchange="renamePlayer(this.dataset.pid,this.value)" maxlength="20">
+    const pc=clr(r.p.colorIdx);
+    const fk=H(String(r.p.id));
+    const selected=phase==='select'&&activePids.includes(String(r.p.id));
+    const initials=r.p.name.substring(0,2).toUpperCase();
+    html+=`<div class="lb-avatar-row" onclick="togglePid('${fk}')" style="${phase!=='select'?'cursor:default':''}">
+      <div class="lb-avatar${selected?' selected':''}"
+        style="background:${pc.bg};color:${pc.l};--pal:${pc.c};--paglow:${pc.glow}">
+        ${initials}
+        <span class="av-check">✓</span>
       </div>
-      <div class="lb-wins" style="color:${pc.c};text-shadow:0 0 10px ${pc.glow}">${r.wins}</div>
-      <div class="lb-games">${r.total}</div>
-      <div class="lb-wr" style="background:${pc.bg};color:${pc.l}">${r.wr}%</div>
-      <div class="lb-best">${r.best!==null?r.best:'—'}</div>
-      <button class="lb-stats-btn" data-pid="${fk}" onclick="showStats(this.dataset.pid)">📊 Stats</button>
-      <button class="lb-del-btn" data-pid="${fk}" onclick="removePlayer(this.dataset.pid)">✕</button>
+      <div class="lb-av-info">
+        <div class="lb-av-name" style="color:${selected?pc.l:'var(--cream)'}">${H(r.p.name)}</div>
+        <div class="lb-av-sub">
+          ${medals[i]||'#'+(i+1)}
+          <span style="margin:0 4px;opacity:0.4">·</span>
+          <span style="color:${pc.l}">${r.wins}W</span>
+          <span style="margin:0 4px;opacity:0.4">·</span>
+          ${r.total} played
+          <span style="margin:0 4px;opacity:0.4">·</span>
+          ${r.wr}% win rate
+          ${r.best!==null?'<span style="margin:0 4px;opacity:0.4">·</span> 🏅 '+r.best:''}
+        </div>
+      </div>
+      <div style="display:flex;align-items:center;gap:6px;flex-shrink:0">
+        <button class="lb-stats-btn" data-pid="${fk}"
+          onclick="event.stopPropagation();showStats(this.dataset.pid)"
+          style="font-size:0.68rem;padding:5px 10px;border-color:${pc.c}55;color:${pc.l}">
+          📊 Stats
+        </button>
+        <button class="lb-del-btn" data-pid="${fk}"
+          onclick="event.stopPropagation();removePlayer(this.dataset.pid)">✕</button>
+      </div>
     </div>`;
   });
   el.innerHTML=html;
+  updateStartBar();
+}
+
+function updateStartBar(){
+  const bar=G('startBar'), btnEl=G('startBtn'), chips=G('startBarPlayers');
+  if(phase!=='select'||!players.length){
+    bar.classList.remove('visible');
+    return;
+  }
+  bar.classList.add('visible');
+  // Update chips showing who's selected
+  if(chips){
+    chips.innerHTML=activePids.length===0
+      ? '<span style="color:var(--muted);font-size:0.78rem;font-weight:700">Tap players above to select them</span>'
+      : activePids.map(pid=>{
+          const p=pid2p(pid); if(!p)return'';
+          const pc=clr(p.colorIdx);
+          return `<span class="start-bar-chip" style="background:${pc.bg};color:${pc.l}">
+            <span style="width:8px;height:8px;border-radius:50%;background:${pc.c};flex-shrink:0;display:inline-block"></span>
+            ${H(p.name)}
+          </span>`;
+        }).join('');
+  }
+  if(btnEl){
+    const n=activePids.length;
+    btnEl.disabled=n<2;
+    btnEl.textContent=n<2?'Select at least 2 players':'🍣 Start with '+n+' players →';
+  }
+  // Set date input value
+  const di=G('gdi'); if(di&&!di.value) di.valueAsDate=new Date();
 }
 
 // ─── STATS MODAL ────────────────────────────────────────
@@ -1054,19 +1143,28 @@ function showStats(pid){
     return{op,n:shared.length,mw:shared.filter(g=>String(g.winner)===pid).length,ow:shared.filter(g=>String(g.winner)===String(op.id)).length};
   }).filter(x=>x.n>0);
 
+  // Build recent form (last 8 games this player was in)
+  const recentG=myG.slice(-8).reverse();
+  const formDots=recentG.map(g=>{
+    const won=String(g.winner)===pid;
+    return `<span style="display:inline-block;width:10px;height:10px;border-radius:50%;background:${won?pc.c:'var(--card3)'};border:1.5px solid ${won?pc.c:'var(--muted)'};margin:1px" title="${won?'Win':'Loss'}"></span>`;
+  }).join('');
+
   G('statsInner').innerHTML=`
     <div style="display:flex;align-items:center;gap:10px;margin-bottom:16px">
-      <div style="width:16px;height:16px;border-radius:50%;background:${pc.c}"></div>
+      <div style="width:36px;height:36px;border-radius:50%;background:${pc.bg};color:${pc.l};display:flex;align-items:center;justify-content:center;font-family:'Fredoka One',cursive;font-size:0.95rem;border:2px solid ${pc.c}">${H(p.name).substring(0,2).toUpperCase()}</div>
       <span style="font-family:'Fredoka One',cursive;font-size:1.4rem;color:${pc.l}">${H(p.name)}</span>
       <button class="mbtn-cancel" onclick="closeStats()" style="margin-left:auto">Close ✕</button>
     </div>
     <div class="psm-grid">
       <div class="psm-stat"><div class="psm-v" style="color:${pc.l}">${wins}</div><div class="psm-l">Wins</div></div>
-      <div class="psm-stat"><div class="psm-v">${myG.length}</div><div class="psm-l">Games</div></div>
+      <div class="psm-stat"><div class="psm-v">${myG.length-wins}</div><div class="psm-l">Losses</div></div>
       <div class="psm-stat"><div class="psm-v" style="color:var(--yellow)">${wr}%</div><div class="psm-l">Win Rate</div></div>
+      <div class="psm-stat"><div class="psm-v" style="color:var(--cream)">${myG.length}</div><div class="psm-l">Games Played</div></div>
       <div class="psm-stat"><div class="psm-v" style="color:var(--green)">${best!==null?best:'—'}</div><div class="psm-l">Best Score</div></div>
-      <div class="psm-stat" style="grid-column:1/-1"><div class="psm-v">${avg!==null?avg:'—'}</div><div class="psm-l">Avg Score</div></div>
+      <div class="psm-stat"><div class="psm-v">${avg!==null?avg:'—'}</div><div class="psm-l">Avg Score</div></div>
     </div>
+    ${recentG.length?`<div class="psm-sec">Recent Form</div><div style="display:flex;gap:2px;flex-wrap:wrap;padding:4px 0 8px">${formDots}</div>`:''}
     ${h2h.length?`<div class="psm-sec">Head to Head</div>
     ${h2h.map(x=>{ const opc=clr(x.op.colorIdx);
       return `<div style="display:flex;align-items:center;gap:10px;padding:7px 0;border-bottom:1px solid rgba(255,255,255,0.05)">
@@ -1335,13 +1433,15 @@ function renderMonthly(){
 function toggleExp(id){ expandedId=(expandedId===id?null:id); renderHistory(); }
 
 // ══ BOOT ════════════════════════════════════════════════
-// 1. Show local data immediately — never a blank screen
 lsLoad();
 const el = G('syncStatus');
 el.innerHTML = '⏳ Connecting…';
 el.style.color = 'var(--muted)';
+// Scoring panel hidden by default (select phase on load)
+const sp0=G('scoringPanel'); if(sp0) sp0.style.display='none';
+// Set start bar date
+const di0=G('gdi'); if(di0) di0.valueAsDate=new Date();
 renderAll();
-// 2. Connect to Firebase
 startSync();
 window.addEventListener('resize',()=>{ clearTimeout(window._rt); window._rt=setTimeout(()=>{ renderTimeline(); renderScoreChart(); },150); });
 </script>
