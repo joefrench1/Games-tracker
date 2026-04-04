@@ -339,6 +339,17 @@ h1{font-family:'Fredoka One',cursive;font-size:clamp(2rem,6vw,3.2rem);background
       <span id="histMeta" class="save-hint"></span>
       <button class="clear-btn" onclick="clearAll()">Clear All</button>
     </div>
+    <div style="display:flex;align-items:center;gap:8px;margin-bottom:12px;flex-wrap:wrap">
+      <span style="font-size:0.68rem;color:var(--muted);font-weight:800;text-transform:uppercase;letter-spacing:0.08em">Filter:</span>
+      <select id="sessionFilter" onchange="renderHistory()"
+        style="background:var(--card2);border:2px solid var(--border);border-radius:8px;color:var(--cream);font-family:'Nunito',sans-serif;font-size:0.8rem;font-weight:700;padding:5px 10px;outline:none;cursor:pointer;">
+        <option value="">All sessions</option>
+      </select>
+      <select id="sizeFilter" onchange="renderHistory()"
+        style="background:var(--card2);border:2px solid var(--border);border-radius:8px;color:var(--cream);font-family:'Nunito',sans-serif;font-size:0.8rem;font-weight:700;padding:5px 10px;outline:none;cursor:pointer;">
+        <option value="">Any player count</option>
+      </select>
+    </div>
     <div id="histList"><div class="empty-state"><span class="big">🍣</span>Your game history will appear here!</div></div>
   </div>
 </div>
@@ -347,8 +358,10 @@ h1{font-family:'Fredoka One',cursive;font-size:clamp(2rem,6vw,3.2rem);background
 <div class="start-bar" id="startBar">
   <div class="start-bar-inner">
     <div class="start-bar-players" id="startBarPlayers"></div>
-    <div class="start-bar-extras">
+    <div class="start-bar-extras" style="grid-template-columns:1fr 1fr 1fr">
       <input type="date" id="gdi" class="start-bar-input" oninput="gDate=this.value">
+      <input type="text" id="gsi" class="start-bar-input" maxlength="30" placeholder="Session (e.g. Pub Night)…" oninput="gSession=this.value" list="sessionList">
+      <datalist id="sessionList"></datalist>
       <input type="text" id="gni" class="start-bar-input" maxlength="80" placeholder="Note (optional)…" oninput="gNote=this.value">
     </div>
     <button class="btn-start" id="startBtn" onclick="startScoring()">🍣 Start Game →</button>
@@ -425,6 +438,7 @@ let currentRound  = 0;
 let roundData     = [{},{},{}];
 let gDate         = new Date().toISOString().split('T')[0];
 let gNote         = '';
+let gSession      = '';
 
 // ══ HELPERS ═════════════════════════════════════════════
 function G(id){ return document.getElementById(id); }
@@ -650,9 +664,11 @@ function resetGame(){
   phase='select'; activePids=[]; currentRound=0;
   roundData=[{},{},{}]; gDate=new Date().toISOString().split('T')[0]; gNote='';
   // Clear the start bar inputs
-  const di=G('gdi'), ni=G('gni');
+  const di=G('gdi'), ni=G('gni'), si=G('gsi');
   if(di){ di.value=''; di.valueAsDate=new Date(); }
   if(ni) ni.value='';
+  if(si) si.value='';
+  gSession='';
   const sp=G('scoringPanel'); if(sp) sp.style.display='none';
   G('recordInner').innerHTML=''; // clear scoring UI
   renderLeaderboard(); // re-renders leaderboard with selection mode active + shows start bar
@@ -679,9 +695,10 @@ function togglePid(pid){
 }
 
 function startScoring(){
-  const di=G('gdi'), ni=G('gni');
+  const di=G('gdi'), ni=G('gni'), si=G('gsi');
   if(di) gDate=di.value||new Date().toISOString().split('T')[0];
   if(ni) gNote=ni.value||'';
+  if(si) gSession=si.value.trim()||'';
   if(activePids.length<2){ showToast('Select at least 2 players!'); return; }
   roundData=[{},{},{}];
   activePids.forEach(pid=>{
@@ -707,8 +724,10 @@ function renderScoring(){
   // Tabs
   const tabsHtml=`<div class="round-tabs">${[0,1,2].map(i=>`<div class="rtab${i===r?' active':''}${i<r?' done':''}" onclick="switchRound(${i})">${i<r?'✓ ':''}Round ${i+1}</div>`).join('')}</div>`;
 
-  // Score rows (FIX #4 — per-player points input per round)
-  const scoreRows=activePids.map(pid=>{
+  // Sort players by running total so leader is always at top
+  const sortedActivePids = r===0 ? activePids : [...activePids].sort((a,b)=>runningTotal(b,r)-runningTotal(a,r));
+  // Score rows — sorted by current standing from round 2 onwards
+  const scoreRows=sortedActivePids.map(pid=>{
     const p=pid2p(pid); if(!p)return'';
     const pc=clr(p.colorIdx), v=rd.scores[pid]||0;
     const prev=runningTotal(pid,r); // total from previous rounds
@@ -738,7 +757,12 @@ function renderScoring(){
   G('recordInner').innerHTML=`
     <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;flex-wrap:wrap;gap:8px">
       <div class="panel-title" style="margin-bottom:0">🍣 Round ${r+1} of 3</div>
-      <div style="font-size:0.7rem;color:var(--muted);font-weight:700">${activePids.map(pid=>{const p=pid2p(pid);return p?H(p.name):'?';}).join(', ')}</div>
+      <div style="font-size:0.7rem;color:var(--muted);font-weight:700">${(()=>{
+        if(r===0) return activePids.map(pid=>{const p=pid2p(pid);return p?H(p.name):'?';}).join(', ');
+        const tots={}; activePids.forEach(pid=>{ tots[pid]=runningTotal(pid,r); });
+        const maxPts=Math.max(...Object.values(tots));
+        return activePids.map(pid=>{const p=pid2p(pid);if(!p)return'?';const isLeading=tots[pid]===maxPts&&maxPts>0;return (isLeading?'👑 ':'')+H(p.name);}).join(', ');
+      })()}</div>
     </div>
     ${tabsHtml}
     <div class="sec-label">Card Points This Round</div>
@@ -768,14 +792,18 @@ function renderMaki(r){
   const isMostTied = mostN>1;
   const secondBlocked = isMostTied;
 
-  function mkBtns(key, pids, disabled){
+  function mkBtns(key, pids, disabled, greyPids){
+    greyPids=greyPids||[];
     return activePids.map(pid=>{
       const p=pid2p(pid); if(!p)return'';
       const pc=clr(p.colorIdx), on=pids.includes(pid);
-      return '<button class="mpbtn'+(on?' on':'')+(disabled?' disabled':'')+'"'
-        +' style="border-color:'+(on?pc.c:pc.c+'44')+';color:'+(on?pc.l:disabled?'var(--card3)':'var(--muted)')+(on?';background:'+pc.bg:'')+';--glow:'+pc.glow+(disabled?';cursor:not-allowed;opacity:0.35;':'')+'"'
+      const greyed=!on&&greyPids.includes(pid);
+      const off=disabled||greyed;
+      return '<button class="mpbtn'+(on?' on':'')+(off?' disabled':'')+'"'
+        +' style="border-color:'+(on?pc.c:pc.c+'44')+';color:'+(on?pc.l:off?'var(--card3)':'var(--muted)')+(on?';background:'+pc.bg:'')+';--glow:'+pc.glow+(off?';cursor:not-allowed;opacity:0.3;':'')+''"'
         +' data-r="'+r+'" data-key="'+key+'" data-pid="'+H(pid)+'"'
-        +' onclick="'+(disabled?'':'toggleMaki('+r+',\''+key+'\',this.dataset.pid)')+'">'+H(p.name)+'</button>';
+        +' onclick="'+(off?'':'toggleMaki('+r+',\''+key+'\',this.dataset.pid)')+'">'
+        +H(p.name)+'</button>';
     }).join('');
   }
 
@@ -787,9 +815,9 @@ function renderMaki(r){
   return '<div class="special-box">'
     +'<div class="sp-title">🍣 Maki Rolls — select who had the most icons</div>'
     +'<div class="rank-row"><div class="rank-lbl">🥇 Most<span>'+mostLabel+'</span></div>'
-    +'<div class="mpbtns">'+mkBtns('most',m.mostPids,false)+'</div></div>'
+    +'<div class="mpbtns">'+mkBtns('most',m.mostPids,false,[])+'</div></div>'
     +'<div class="rank-row"><div class="rank-lbl">🥈 Second<span>'+secondLabel+'</span></div>'
-    +'<div class="mpbtns">'+mkBtns('second',secondBlocked?[]:m.secondPids,secondBlocked)+'</div></div>'
+    +'<div class="mpbtns">'+mkBtns('second',secondBlocked?[]:m.secondPids,secondBlocked,m.mostPids)+'</div></div>'
     +'<div style="margin-top:8px;font-size:0.68rem;color:var(--muted);font-weight:700;font-style:italic">'
     +(isMostTied?'🔀 1st place tied — 6 pts split equally, no 2nd place awarded':'Select multiple players if tied — points divide automatically')
     +'</div></div>';
@@ -805,14 +833,17 @@ function renderPudding(){
   const mostEach = mostN>0 ? +(6/mostN).toFixed(1) : 6;
   const leastEach = leastN>0 ? +(-6/leastN).toFixed(1) : -6;
 
-  function puBtns(key, pids){
+  function puBtns(key, pids, greyPids){
+    greyPids=greyPids||[];
     return activePids.map(pid=>{
       const p=pid2p(pid); if(!p)return'';
       const pc=clr(p.colorIdx), on=pids.includes(pid);
-      return '<button class="mpbtn'+(on?' on':'')+'"'
-        +' style="border-color:'+(on?pc.c:pc.c+'44')+';color:'+(on?pc.l:'var(--muted)')+(on?';background:'+pc.bg:'')+';--glow:'+pc.glow+'"'
+      const greyed=!on&&greyPids.includes(pid);
+      return '<button class="mpbtn'+(on?' on':'')+(greyed?' disabled':'')+'"'
+        +' style="border-color:'+(on?pc.c:pc.c+'44')+';color:'+(on?pc.l:greyed?'var(--card3)':'var(--muted)')+(on?';background:'+pc.bg:'')+';--glow:'+pc.glow+(greyed?';cursor:not-allowed;opacity:0.3;':'')+''"'
         +' data-key="'+key+'" data-pid="'+H(pid)+'"'
-        +' onclick="togglePudding(\''+key+'\',this.dataset.pid)">'+H(p.name)+'</button>';
+        +' onclick="'+(greyed?'':'togglePudding(\''+key+'\',this.dataset.pid)')+'">'
+        +H(p.name)+'</button>';
     }).join('');
   }
 
@@ -822,9 +853,9 @@ function renderPudding(){
   return '<div class="special-box pudding">'
     +'<div class="sp-title">🍮 Puddings — end-of-game bonus (scored now)</div>'
     +'<div class="rank-row"><div class="rank-lbl">🥇 Most<span>'+mostLabel+'</span></div>'
-    +'<div class="mpbtns">'+puBtns('most',pu.mostPids)+'</div></div>'
+    +'<div class="mpbtns">'+puBtns('most',pu.mostPids,pu.leastPids)+'</div></div>'
     +'<div class="rank-row"><div class="rank-lbl">💔 Least<span>'+leastLabel+'</span></div>'
-    +'<div class="mpbtns">'+puBtns('least',pu.leastPids)+'</div></div>'
+    +'<div class="mpbtns">'+puBtns('least',pu.leastPids,pu.mostPids)+'</div></div>'
     +'<div style="margin-top:8px;font-size:0.68rem;color:var(--muted);font-weight:700;font-style:italic">'
     +'Select multiple players if tied — points divide automatically. In 2-player games, leave "Least" blank (no penalty).'
     +'</div></div>';
@@ -991,7 +1022,8 @@ async function finishGame(){
     })),
     totals,
     winner:String(winner),
-    ...(gNote?{note:gNote}:{})
+    ...(gNote?{note:gNote}:{}),
+    ...(gSession?{session:gSession}:{})
   };
   showPopup(pid2p(winner), totals);
   resetGame();
@@ -1052,6 +1084,7 @@ function renderLeaderboard(){
     const myG=games.filter(g=>toArr(g.playerIds).includes(String(p.id)));
     const wins=myG.filter(g=>String(g.winner)===String(p.id)).length;
     const scores=myG.map(g=>g.totals&&g.totals[p.id]!=null?Number(g.totals[p.id]):null).filter(s=>s!==null);
+  const worst=scores.length?Math.min(...scores):null;
     const best=scores.length?Math.max(...scores):null;
     const wr=myG.length?Math.round(wins/myG.length*100):0;
     return{p,wins,total:myG.length,wr,best};
@@ -1072,15 +1105,8 @@ function renderLeaderboard(){
       </div>
       <div class="lb-av-info">
         <div class="lb-av-name" style="color:${selected?pc.l:'var(--cream)'}">${H(r.p.name)}</div>
-        <div class="lb-av-sub">
-          ${medals[i]||'#'+(i+1)}
-          <span style="margin:0 4px;opacity:0.4">·</span>
-          <span style="color:${pc.l}">${r.wins}W</span>
-          <span style="margin:0 4px;opacity:0.4">·</span>
-          ${r.total} played
-          <span style="margin:0 4px;opacity:0.4">·</span>
-          ${r.wr}% win rate
-          ${r.best!==null?'<span style="margin:0 4px;opacity:0.4">·</span> 🏅 '+r.best:''}
+        <div class="lb-av-sub" style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis">
+          ${medals[i]||'#'+(i+1)} &nbsp;<span style="color:${pc.l};font-weight:900">${r.wins}W</span> / ${r.total} played &nbsp;·&nbsp; ${r.wr}%${r.best!==null?' &nbsp;·&nbsp; 🏅 '+r.best:''}
         </div>
       </div>
       <div style="display:flex;align-items:center;gap:6px;flex-shrink:0">
@@ -1164,6 +1190,25 @@ function showStats(pid){
       <div class="psm-stat"><div class="psm-v" style="color:var(--green)">${best!==null?best:'—'}</div><div class="psm-l">Best Score</div></div>
       <div class="psm-stat"><div class="psm-v">${avg!==null?avg:'—'}</div><div class="psm-l">Avg Score</div></div>
     </div>
+    <div class="psm-grid" style="grid-template-columns:1fr 1fr 1fr;margin-top:0">
+      <div class="psm-stat"><div class="psm-v" style="color:var(--green)">${best!==null?best:'—'}</div><div class="psm-l">Best</div></div>
+      <div class="psm-stat"><div class="psm-v">${avg!==null?avg:'—'}</div><div class="psm-l">Average</div></div>
+      <div class="psm-stat"><div class="psm-v" style="color:var(--muted)">${worst!==null?worst:'—'}</div><div class="psm-l">Worst</div></div>
+    </div>
+    ${scores.length>1?`<div class="psm-sec">Score History</div>
+    <div style="display:flex;flex-direction:column;gap:4px;max-height:140px;overflow-y:auto;padding-right:4px">
+    ${myG.slice().reverse().map((g,i)=>{
+      const sc=g.totals&&g.totals[p.id]!=null?Number(g.totals[p.id]):null;
+      const won=String(g.winner)===pid;
+      if(sc===null)return'';
+      const pct=Math.round(sc/best*100);
+      return '<div style="display:grid;grid-template-columns:60px 1fr 36px;align-items:center;gap:6px;padding:3px 0">'
+        +'<span style="font-size:0.65rem;color:var(--muted);font-family:DM Mono,monospace">'+fmtDate(g.date)+'</span>'
+        +'<div style="background:var(--card3);border-radius:20px;height:7px;overflow:hidden">'
+        +'<div style="width:'+pct+'%;height:100%;border-radius:20px;background:'+(won?pc.c:'var(--muted)')+'"></div></div>'
+        +'<span style="font-family:Fredoka One,cursive;font-size:0.88rem;color:'+(won?pc.l:'var(--muted)')+'">'+sc+'</span>'
+        +'</div>';
+    }).join('')}</div>`:''}
     ${recentG.length?`<div class="psm-sec">Recent Form</div><div style="display:flex;gap:2px;flex-wrap:wrap;padding:4px 0 8px">${formDots}</div>`:''}
     ${h2h.length?`<div class="psm-sec">Head to Head</div>
     ${h2h.map(x=>{ const opc=clr(x.op.colorIdx);
@@ -1254,12 +1299,43 @@ function renderTimeline(){
 // ─── HISTORY ────────────────────────────────────────────
 function renderHistory(){
   const el=G('histList');
-  const hm=G('histMeta'); if(hm) hm.textContent=games.length?games.length+' game'+(games.length!==1?'s':''):'';
   if(!games.length){el.innerHTML='<div class="empty-state"><span class="big">🍣</span>No games yet!</div>';return;}
-  const sorted=[...games].sort((a,b)=>{
+
+  // Populate session datalist for start bar
+  const sl=G('sessionList');
+  if(sl){
+    const sessions=[...new Set(games.map(g=>g.session).filter(Boolean))].sort();
+    sl.innerHTML=sessions.map(s=>'<option value="'+H(s)+'">').join('');
+  }
+
+  // Populate filter dropdowns
+  const sf=G('sessionFilter'), szf=G('sizeFilter');
+  if(sf){
+    const sessions=[...new Set(games.map(g=>g.session).filter(Boolean))].sort();
+    const curS=sf.value;
+    sf.innerHTML='<option value="">All sessions</option>'+sessions.map(s=>'<option value="'+H(s)+'"'+(s===curS?' selected':'')+'>'+H(s)+'</option>').join('');
+  }
+  if(szf){
+    const sizes=[...new Set(games.map(g=>toArr(g.playerIds).length).filter(n=>n>0))].sort((a,b)=>a-b);
+    const curSz=szf.value;
+    szf.innerHTML='<option value="">Any player count</option>'+sizes.map(n=>'<option value="'+n+'"'+(String(n)===curSz?' selected':'')+'>'+n+' players</option>').join('');
+  }
+
+  // Apply filters
+  const filterSession=sf?sf.value:'';
+  const filterSize=szf?parseInt(szf.value)||0:0;
+
+  let sorted=[...games].sort((a,b)=>{
     if(b.date&&a.date){const dc=b.date.localeCompare(a.date);if(dc!==0)return dc;}
     return(b.id||0)-(a.id||0);
   });
+  if(filterSession) sorted=sorted.filter(g=>g.session===filterSession);
+  if(filterSize)    sorted=sorted.filter(g=>toArr(g.playerIds).length===filterSize);
+
+  const hm=G('histMeta');
+  if(hm) hm.textContent=sorted.length+' of '+games.length+' game'+(games.length!==1?'s':'');
+  if(!sorted.length){el.innerHTML='<div class="empty-state"><span class="big">🍣</span>No games match this filter!</div>';return;}
+
   // Find the game with the highest single-player score for the "best game" badge
   let bestGameFbKey=null, bestGameScore=0;
   sorted.forEach(gm=>{
@@ -1279,11 +1355,30 @@ function renderHistory(){
       const pp=pid2p(pid), ppc=pp?clr(pp.colorIdx):{l:'var(--muted)'};
       const total=gm.totals&&gm.totals[pid]!=null?Number(gm.totals[pid]):null;
       const isW=String(pid)===String(gm.winner);
-      function hr(r){ return gm.rounds&&gm.rounds[r]?histRoundPts(gm,pid,r):null; }
+      // Build per-round breakdown string showing card pts + maki/pudding bonus
+      function rDetail(r){
+        if(!gm.rounds||!gm.rounds[r])return'—';
+        const rd=gm.rounds[r];
+        const cardPts=Number((rd.scores||{})[String(pid)])||0;
+        const parts=[cardPts>0?cardPts:'0'];
+        if(rd.maki){
+          const mostPids=toArr(rd.maki.mostPids), secPids=toArr(rd.maki.secondPids);
+          const isMostTied=mostPids.length>1;
+          if(mostPids.includes(String(pid))) parts.push('+M'+(mostPids.length>1?'(tie)':''));
+          else if(!isMostTied&&secPids.includes(String(pid))) parts.push('+m');
+        }
+        if(r===2&&rd.pudding){
+          const mPids=toArr(rd.pudding.mostPids), lPids=toArr(rd.pudding.leastPids);
+          if(mPids.includes(String(pid))) parts.push('+P');
+          if(lPids.includes(String(pid))) parts.push('−P');
+        }
+        const roundTotal=histRoundPts(gm,pid,r);
+        return '<span title="'+parts.join(' ')+'" style="cursor:help">'+(roundTotal!==null?roundTotal:'—')+'</span>';
+      }
       return `<tr${isW?' class="winner"':''} style="font-weight:${isW?900:700}">
-        <td style="color:${ppc.l}">${pp?H(pp.name):'Unknown'}</td>
-        <td>${hr(0)!==null?hr(0):'—'}</td><td>${hr(1)!==null?hr(1):'—'}</td><td>${hr(2)!==null?hr(2):'—'}</td>
-        <td style="color:${ppc.l};font-family:'Fredoka One',cursive">${total!==null?total:'—'}</td>
+        <td style="color:${ppc.l}">${isW?'👑 ':''}${pp?H(pp.name):'Unknown'}</td>
+        <td>${rDetail(0)}</td><td>${rDetail(1)}</td><td>${rDetail(2)}</td>
+        <td style="color:${ppc.l};font-family:'Fredoka One',cursive;font-size:1rem">${total!==null?total:'—'}</td>
       </tr>`;
     }).join('');
     return `<div class="game-card${isExp?' expanded':''}">
@@ -1291,6 +1386,7 @@ function renderHistory(){
         <span class="g-num">#${num}</span>
         <span class="g-badge" style="background:${pc.bg};color:${pc.l}">🏆 ${wp?H(wp.name):'?'}</span>
         <span class="g-date">📅 ${fmtDate(gm.date)}</span>
+        ${gm.session?`<span style="font-size:0.64rem;font-weight:800;padding:2px 7px;border-radius:20px;background:rgba(255,107,157,0.15);color:var(--pink2)">${H(gm.session)}</span>`:''}
         <span style="font-size:0.7rem;color:${isBest?'var(--yellow)':'var(--muted)'};font-weight:800">${isBest?'⭐ Best':''+pids.length+'p'}</span>
         <span class="g-exp">▼</span>
       </div>
