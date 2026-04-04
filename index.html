@@ -2,11 +2,63 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta http-equiv="refresh" content="0; url=ganz-schon-tracker-v2.html">
-<title>Ganz Schön Clever 🎲</title>
-<script>window.location.replace('ganz-schon-tracker-v2.html');</script>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Game Tracker 🎲</title>
+<link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Nunito:wght@400;700;800;900&display=swap" rel="stylesheet">
+<meta name="theme-color" content="#0f1923">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<style>
+:root{--bg:#0f1923;--card:#1a2535;--card2:#212f42;--border:rgba(255,255,255,0.1);--cream:#e8f0fe;--muted:#6b84a8;}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
+body{background:var(--bg);color:var(--cream);font-family:'Nunito',sans-serif;min-height:100vh;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;padding:24px 16px;
+  background-image:
+    radial-gradient(ellipse 60% 40% at 10% 0%,rgba(245,200,66,0.07) 0%,transparent 60%),
+    radial-gradient(ellipse 50% 40% at 90% 100%,rgba(255,107,157,0.07) 0%,transparent 60%);}
+.hub{width:100%;max-width:480px;}
+.hub-title{font-family:'Fredoka One',cursive;font-size:clamp(2rem,6vw,3rem);text-align:center;
+  background:linear-gradient(135deg,#f5c842,#ff8c42,#ff6b9d);
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
+  margin-bottom:8px;}
+.hub-sub{text-align:center;color:var(--muted);font-size:0.82rem;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;margin-bottom:32px;}
+.game-card{display:flex;align-items:center;gap:18px;background:var(--card);border:2px solid var(--border);
+  border-radius:18px;padding:22px 24px;text-decoration:none;color:var(--cream);
+  transition:all 0.2s;margin-bottom:14px;}
+.game-card:hover{transform:translateY(-3px);border-color:var(--accent);}
+.game-card.gsc{--accent:rgba(245,200,66,0.6);}
+.game-card.sushi{--accent:rgba(255,107,157,0.6);}
+.gc-emoji{font-size:2.8rem;flex-shrink:0;animation:float 2.5s ease-in-out infinite;}
+.game-card.sushi .gc-emoji{animation-delay:.4s;}
+@keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-6px)}}
+.gc-info{flex:1;}
+.gc-name{font-family:'Fredoka One',cursive;font-size:1.35rem;margin-bottom:3px;}
+.game-card.gsc .gc-name{color:#f5c842;}
+.game-card.sushi .gc-name{color:#ff9dc0;}
+.gc-desc{font-size:0.78rem;color:var(--muted);font-weight:700;}
+.gc-arrow{color:var(--muted);font-size:1.2rem;transition:transform 0.2s;}
+.game-card:hover .gc-arrow{transform:translateX(4px);}
+</style>
 </head>
 <body>
-<p>Loading tracker… <a href="ganz-schon-tracker-v2.html">click here if not redirected</a></p>
+<div class="hub">
+  <div class="hub-title">🎲 Game Tracker</div>
+  <div class="hub-sub">Pick a game to track</div>
+  <a href="ganz-schon-tracker-v2.html" class="game-card gsc">
+    <span class="gc-emoji">🎲</span>
+    <div class="gc-info">
+      <div class="gc-name">Ganz Schön Clever</div>
+      <div class="gc-desc">Sofia &amp; Joey • Score tracking • Stats &amp; charts</div>
+    </div>
+    <span class="gc-arrow">→</span>
+  </a>
+  <a href="sushi-go-tracker.html" class="game-card sushi">
+    <span class="gc-emoji">🍣</span>
+    <div class="gc-info">
+      <div class="gc-name">Sushi Go!</div>
+      <div class="gc-desc">Multiplayer • Leaderboard • Win tracking</div>
+    </div>
+    <span class="gc-arrow">→</span>
+  </a>
+</div>
 </body>
 </html>
