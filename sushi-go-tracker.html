@@ -754,15 +754,19 @@ function renderScoring(){
   const totHtml=renderTotBar(r);
 
   const isLast=r===2;
+  // Compute player list with crown for current leader (safe string, no nested template)
+  let playerListWithCrown='';
+  if(r===0){
+    playerListWithCrown=activePids.map(function(pid){const p=pid2p(pid);return p?H(p.name):'?';}).join(', ');
+  } else {
+    const tots2={}; activePids.forEach(function(pid){ tots2[pid]=runningTotal(pid,r); });
+    const maxPts2=Math.max.apply(null,Object.values(tots2));
+    playerListWithCrown=activePids.map(function(pid){const p=pid2p(pid);if(!p)return'?';return (tots2[pid]===maxPts2&&maxPts2>0?'👑 ':'')+H(p.name);}).join(', ');
+  }
   G('recordInner').innerHTML=`
     <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;flex-wrap:wrap;gap:8px">
       <div class="panel-title" style="margin-bottom:0">🍣 Round ${r+1} of 3</div>
-      <div style="font-size:0.7rem;color:var(--muted);font-weight:700">${(()=>{
-        if(r===0) return activePids.map(pid=>{const p=pid2p(pid);return p?H(p.name):'?';}).join(', ');
-        const tots={}; activePids.forEach(pid=>{ tots[pid]=runningTotal(pid,r); });
-        const maxPts=Math.max(...Object.values(tots));
-        return activePids.map(pid=>{const p=pid2p(pid);if(!p)return'?';const isLeading=tots[pid]===maxPts&&maxPts>0;return (isLeading?'👑 ':'')+H(p.name);}).join(', ');
-      })()}</div>
+      <div style="font-size:0.7rem;color:var(--muted);font-weight:700">${playerListWithCrown}</div>
     </div>
     ${tabsHtml}
     <div class="sec-label">Card Points This Round</div>
@@ -1176,48 +1180,56 @@ function showStats(pid){
     return `<span style="display:inline-block;width:10px;height:10px;border-radius:50%;background:${won?pc.c:'var(--card3)'};border:1.5px solid ${won?pc.c:'var(--muted)'};margin:1px" title="${won?'Win':'Loss'}"></span>`;
   }).join('');
 
-  G('statsInner').innerHTML=`
-    <div style="display:flex;align-items:center;gap:10px;margin-bottom:16px">
-      <div style="width:36px;height:36px;border-radius:50%;background:${pc.bg};color:${pc.l};display:flex;align-items:center;justify-content:center;font-family:'Fredoka One',cursive;font-size:0.95rem;border:2px solid ${pc.c}">${H(p.name).substring(0,2).toUpperCase()}</div>
-      <span style="font-family:'Fredoka One',cursive;font-size:1.4rem;color:${pc.l}">${H(p.name)}</span>
-      <button class="mbtn-cancel" onclick="closeStats()" style="margin-left:auto">Close ✕</button>
-    </div>
-    <div class="psm-grid">
-      <div class="psm-stat"><div class="psm-v" style="color:${pc.l}">${wins}</div><div class="psm-l">Wins</div></div>
-      <div class="psm-stat"><div class="psm-v">${myG.length-wins}</div><div class="psm-l">Losses</div></div>
-      <div class="psm-stat"><div class="psm-v" style="color:var(--yellow)">${wr}%</div><div class="psm-l">Win Rate</div></div>
-      <div class="psm-stat"><div class="psm-v" style="color:var(--cream)">${myG.length}</div><div class="psm-l">Games Played</div></div>
-      <div class="psm-stat"><div class="psm-v" style="color:var(--green)">${best!==null?best:'—'}</div><div class="psm-l">Best Score</div></div>
-      <div class="psm-stat"><div class="psm-v">${avg!==null?avg:'—'}</div><div class="psm-l">Avg Score</div></div>
-    </div>
-    <div class="psm-grid" style="grid-template-columns:1fr 1fr 1fr;margin-top:0">
-      <div class="psm-stat"><div class="psm-v" style="color:var(--green)">${best!==null?best:'—'}</div><div class="psm-l">Best</div></div>
-      <div class="psm-stat"><div class="psm-v">${avg!==null?avg:'—'}</div><div class="psm-l">Average</div></div>
-      <div class="psm-stat"><div class="psm-v" style="color:var(--muted)">${worst!==null?worst:'—'}</div><div class="psm-l">Worst</div></div>
-    </div>
-    ${scores.length>1?`<div class="psm-sec">Score History</div>
-    <div style="display:flex;flex-direction:column;gap:4px;max-height:140px;overflow-y:auto;padding-right:4px">
-    ${myG.slice().reverse().map((g,i)=>{
+  // Build stats modal with string concatenation to avoid nested template literal issues
+  let sm='';
+  sm+='<div style="display:flex;align-items:center;gap:10px;margin-bottom:16px">';
+  sm+='<div style="width:36px;height:36px;border-radius:50%;background:'+pc.bg+';color:'+pc.l+';display:flex;align-items:center;justify-content:center;font-family:Fredoka One,cursive;font-size:0.95rem;border:2px solid '+pc.c+'">'+H(p.name).substring(0,2).toUpperCase()+'</div>';
+  sm+='<span style="font-family:Fredoka One,cursive;font-size:1.4rem;color:'+pc.l+'">'+H(p.name)+'</span>';
+  sm+='<button class="mbtn-cancel" onclick="closeStats()" style="margin-left:auto">Close ✕</button></div>';
+  sm+='<div class="psm-grid">';
+  sm+='<div class="psm-stat"><div class="psm-v" style="color:'+pc.l+'">'+wins+'</div><div class="psm-l">Wins</div></div>';
+  sm+='<div class="psm-stat"><div class="psm-v">'+(myG.length-wins)+'</div><div class="psm-l">Losses</div></div>';
+  sm+='<div class="psm-stat"><div class="psm-v" style="color:var(--yellow)">'+wr+'%</div><div class="psm-l">Win Rate</div></div>';
+  sm+='<div class="psm-stat"><div class="psm-v" style="color:var(--cream)">'+myG.length+'</div><div class="psm-l">Games Played</div></div>';
+  sm+='</div>';
+  sm+='<div class="psm-grid" style="grid-template-columns:1fr 1fr 1fr">';
+  sm+='<div class="psm-stat"><div class="psm-v" style="color:var(--green)">'+(best!==null?best:'—')+'</div><div class="psm-l">Best</div></div>';
+  sm+='<div class="psm-stat"><div class="psm-v">'+(avg!==null?avg:'—')+'</div><div class="psm-l">Average</div></div>';
+  sm+='<div class="psm-stat"><div class="psm-v" style="color:var(--muted)">'+(worst!==null?worst:'—')+'</div><div class="psm-l">Worst</div></div>';
+  sm+='</div>';
+  if(scores.length>1){
+    sm+='<div class="psm-sec">Score History</div>';
+    sm+='<div style="display:flex;flex-direction:column;gap:4px;max-height:140px;overflow-y:auto;padding-right:4px">';
+    myG.slice().reverse().forEach(function(g){
       const sc=g.totals&&g.totals[p.id]!=null?Number(g.totals[p.id]):null;
+      if(sc===null)return;
       const won=String(g.winner)===pid;
-      if(sc===null)return'';
-      const pct=Math.round(sc/best*100);
-      return '<div style="display:grid;grid-template-columns:60px 1fr 36px;align-items:center;gap:6px;padding:3px 0">'
-        +'<span style="font-size:0.65rem;color:var(--muted);font-family:DM Mono,monospace">'+fmtDate(g.date)+'</span>'
-        +'<div style="background:var(--card3);border-radius:20px;height:7px;overflow:hidden">'
-        +'<div style="width:'+pct+'%;height:100%;border-radius:20px;background:'+(won?pc.c:'var(--muted)')+'"></div></div>'
-        +'<span style="font-family:Fredoka One,cursive;font-size:0.88rem;color:'+(won?pc.l:'var(--muted)')+'">'+sc+'</span>'
-        +'</div>';
-    }).join('')}</div>`:''}
-    ${recentG.length?`<div class="psm-sec">Recent Form</div><div style="display:flex;gap:2px;flex-wrap:wrap;padding:4px 0 8px">${formDots}</div>`:''}
-    ${h2h.length?`<div class="psm-sec">Head to Head</div>
-    ${h2h.map(x=>{ const opc=clr(x.op.colorIdx);
-      return `<div style="display:flex;align-items:center;gap:10px;padding:7px 0;border-bottom:1px solid rgba(255,255,255,0.05)">
-        <div style="width:8px;height:8px;border-radius:50%;background:${opc.c};flex-shrink:0"></div>
-        <span style="font-size:0.85rem;font-weight:700;color:${opc.l};flex:1">vs ${H(x.op.name)}</span>
-        <span style="font-family:'DM Mono',monospace;font-size:0.74rem;color:var(--muted)">${x.n} game${x.n!==1?'s':''}</span>
-        <span style="font-family:'Fredoka One',cursive;font-size:0.95rem;color:${x.mw>x.ow?'var(--green)':x.mw<x.ow?'var(--red2)':'var(--muted)'}">${x.mw}–${x.ow}</span>
-      </div>`;}).join('')}`:''}`;
+      const pct=best>0?Math.round(sc/best*100):0;
+      sm+='<div style="display:grid;grid-template-columns:60px 1fr 36px;align-items:center;gap:6px;padding:3px 0">';
+      sm+='<span style="font-size:0.65rem;color:var(--muted);font-family:DM Mono,monospace">'+fmtDate(g.date)+'</span>';
+      sm+='<div style="background:var(--card3);border-radius:20px;height:7px;overflow:hidden"><div style="width:'+pct+'%;height:100%;border-radius:20px;background:'+(won?pc.c:'var(--muted)')+'"></div></div>';
+      sm+='<span style="font-family:Fredoka One,cursive;font-size:0.88rem;color:'+(won?pc.l:'var(--muted)')+'">'+sc+'</span>';
+      sm+='</div>';
+    });
+    sm+='</div>';
+  }
+  if(recentG.length){
+    sm+='<div class="psm-sec">Recent Form</div>';
+    sm+='<div style="display:flex;gap:2px;flex-wrap:wrap;padding:4px 0 8px">'+formDots+'</div>';
+  }
+  if(h2h.length){
+    sm+='<div class="psm-sec">Head to Head</div>';
+    h2h.forEach(function(x){
+      const opc=clr(x.op.colorIdx);
+      sm+='<div style="display:flex;align-items:center;gap:10px;padding:7px 0;border-bottom:1px solid rgba(255,255,255,0.05)">';
+      sm+='<div style="width:8px;height:8px;border-radius:50%;background:'+opc.c+';flex-shrink:0"></div>';
+      sm+='<span style="font-size:0.85rem;font-weight:700;color:'+opc.l+';flex:1">vs '+H(x.op.name)+'</span>';
+      sm+='<span style="font-family:DM Mono,monospace;font-size:0.74rem;color:var(--muted)">'+x.n+' game'+(x.n!==1?'s':'')+'</span>';
+      sm+='<span style="font-family:Fredoka One,cursive;font-size:0.95rem;color:'+(x.mw>x.ow?'var(--green)':x.mw<x.ow?'var(--red2)':'var(--muted)')+'">'+x.mw+'–'+x.ow+'</span>';
+      sm+='</div>';
+    });
+  }
+  G('statsInner').innerHTML=sm;
   G('statsOv').classList.add('show'); G('statsBox').classList.add('show');
 }
 function closeStats(){ G('statsOv').classList.remove('show'); G('statsBox').classList.remove('show'); }
