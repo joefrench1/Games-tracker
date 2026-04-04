@@ -1059,7 +1059,7 @@ function renderLeader(){
   if(!games.length){el.innerHTML="No games yet — let's play! 🎲";return;}
   if(w1===w2){el.innerHTML='🤝 Dead even at '+w1+' win'+(w1!==1?'s':'')+' each!';return;}
   const lead=w1>w2?p1():p2(),diff=Math.abs(w1-w2);
-  el.innerHTML='👑 <strong>'+lead+'</strong>' + ' is winning! Up by '+diff+' game'+(diff>1?'s':'')+' 🔥';
+  el.innerHTML='👑 <strong>'+lead+' </strong>is winning! Up by '+diff+' game'+(diff>1?'s':'')+' 🔥';
 }
 function renderStats(){
   G('stTotal').textContent=games.length;

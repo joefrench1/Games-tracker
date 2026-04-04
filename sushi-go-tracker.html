@@ -379,6 +379,17 @@ const G   = id => document.getElementById(id);
 const H   = s  => String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
 const pid2p = id => players.find(p => String(p.id) === String(id)) || null;
 const clr   = idx => COLORS[idx % COLORS.length];
+// Firebase may store totals as {p_123: 45} (safe format) or {123: 45} (old format)
+// This normalises both to plain pid strings
+function normTotals(totals){
+  if(!totals) return {};
+  const out={};
+  Object.entries(totals).forEach(([k,v])=>{
+    const pid=k.startsWith('p_')?k.slice(2):k;
+    out[pid]=Number(v);
+  });
+  return out;
+}
 function nextColorIdx(){ const u=players.map(p=>p.colorIdx); for(let i=0;i<COLORS.length;i++) if(!u.includes(i)) return i; return players.length%COLORS.length; }
 function fmtDate(d){ if(!d)return'—'; const p=d.split('-'); if(p.length!==3)return d; return ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'][+p[1]-1]+' '+parseInt(p[2])+', '+p[0]; }
 
@@ -419,7 +430,13 @@ async function sync(){
   attempts++;
   try{
     const d=await fbGet(); attempts=0; setStatus('live');
-    const ng=obj2arr(d&&d.games), np=obj2arr(d&&d.players);
+    // Normalise each game's totals and playerIds as they come back from Firebase
+    const ng=obj2arr(d&&d.games).map(g=>({
+      ...g,
+      totals: normTotals(g.totals),
+      playerIds: (g.playerIds||[]).map(String)
+    }));
+    const np=obj2arr(d&&d.players);
     const h=JSON.stringify({g:ng,p:np});
     if(h!==lastHash){ lastHash=h; games=ng; players=np; lsSave(); renderAll(); }
   }catch(e){
@@ -433,7 +450,12 @@ async function manualSync(){ setStatus('connecting'); await sync(); }
 // ══ FIREBASE WRITES ═════════════════════════════════════
 async function fbSaveGame(gm){
   const key='game_'+(gm.id||Date.now());
-  try{ await fbPut('games/'+key,{...gm,fbKey:undefined}); await sync(); }
+  // Ensure totals keys are always prefixed strings so Firebase never coerces them to arrays
+  const safeTotals={};
+  if(gm.totals) Object.entries(gm.totals).forEach(([pid,v])=>{ safeTotals['p_'+String(pid)]=v; });
+  const safePlayerIds=(gm.playerIds||[]).map(String);
+  const safeGm={...gm, fbKey:undefined, playerIds:safePlayerIds, totals:safeTotals};
+  try{ await fbPut('games/'+key,safeGm); await sync(); }
   catch(e){ games.push({...gm,fbKey:'local_'+gm.id}); lsSave(); renderAll(); showToast('Saved locally (offline)'); }
 }
 // FIX #1: players saved with string IDs so pid2p() resolves correctly after sync
@@ -829,15 +851,27 @@ function closeRoundSummary(advance){
 // ─── Finish game ─────────────────────────────────────────
 async function finishGame(){
   saveInputs();
+  // Build totals with plain string PIDs
   const totals={};
-  activePids.forEach(pid=>{ totals[pid]=runningTotal(pid,3); });
+  activePids.forEach(pid=>{ totals[String(pid)]=runningTotal(pid,3); });
   const maxPts=Math.max(...Object.values(totals));
-  const winner=activePids.filter(pid=>totals[pid]===maxPts)[0];
+  const winner=activePids.filter(pid=>totals[String(pid)]===maxPts)[0];
   const gm={
     id:Date.now(), date:gDate,
-    playerIds:activePids,
-    rounds:roundData.map(rd=>({scores:{...rd.scores||{}},maki:{...rd.maki||{}},pudding:{...rd.pudding||{}}})),
-    totals, winner,
+    playerIds:activePids.map(String),
+    rounds:roundData.map(rd=>({
+      scores: Object.fromEntries(Object.entries(rd.scores||{}).map(([k,v])=>[String(k),v])),
+      maki: {
+        mostPids:(rd.maki&&rd.maki.mostPids||[]).map(String),
+        secondPids:(rd.maki&&rd.maki.secondPids||[]).map(String)
+      },
+      pudding: {
+        mostPids:(rd.pudding&&rd.pudding.mostPids||[]).map(String),
+        leastPids:(rd.pudding&&rd.pudding.leastPids||[]).map(String)
+      }
+    })),
+    totals,
+    winner:String(winner),
     ...(gNote?{note:gNote}:{})
   };
   showPopup(pid2p(winner), totals);
@@ -1213,8 +1247,14 @@ function toggleExp(id){ expandedId=(expandedId===id?null:id); renderHistory(); }
 
 // ══ BOOT ════════════════════════════════════════════════
 lsLoad();
-setStatus('connecting');
+// Show local data immediately so there's never a blank screen
+if(games.length || players.length){
+  setStatus('local');
+} else {
+  setStatus('connecting');
+}
 renderAll();
+// Then connect to Firebase (updates status to live/error automatically)
 startSync();
 window.addEventListener('resize',()=>{ clearTimeout(window._rt); window._rt=setTimeout(()=>{ renderTimeline(); renderScoreChart(); },150); });
 </script>
