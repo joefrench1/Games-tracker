@@ -218,6 +218,16 @@ h1{font-family:'Fredoka One',cursive;font-size:clamp(2rem,6vw,3.2rem);background
 /* SAVE BAR */
 .save-bar{position:fixed;bottom:0;left:0;right:0;background:rgba(15,25,35,0.96);border-top:1px solid var(--border);backdrop-filter:blur(10px);display:flex;flex-direction:column;align-items:center;gap:6px;padding:8px 16px 12px;z-index:100;}
 .save-hint{font-size:0.75rem;font-weight:700;color:var(--muted);}
+
+/* ROUND SUMMARY MODAL */
+.rsm-table{width:100%;border-collapse:collapse;margin:12px 0;}
+.rsm-table th{font-size:0.6rem;text-transform:uppercase;letter-spacing:0.08em;color:var(--muted);font-weight:800;padding:5px 8px;text-align:center;border-bottom:1px solid var(--border);}
+.rsm-table th:first-child{text-align:left;}
+.rsm-table td{padding:8px 8px;border-bottom:1px solid rgba(255,255,255,0.04);text-align:center;font-size:0.88rem;font-weight:700;}
+.rsm-table td:first-child{text-align:left;}
+.rsm-table tr.rsm-winner td{font-weight:900;}
+.rsm-rank{font-family:'Fredoka One',cursive;font-size:1.1rem;}
+.rsm-total{font-family:'Fredoka One',cursive;font-size:1.2rem;}
 .toast{position:fixed;top:20px;left:50%;transform:translateX(-50%) translateY(-80px);background:var(--card2);border:2px solid var(--border);border-radius:12px;color:var(--cream);font-size:0.88rem;font-weight:700;padding:10px 20px;transition:transform 0.35s cubic-bezier(0.34,1.56,0.64,1);z-index:9999;white-space:nowrap;}
 .toast.show{transform:translateX(-50%) translateY(0);}
 
@@ -269,8 +279,16 @@ h1{font-family:'Fredoka One',cursive;font-size:clamp(2rem,6vw,3.2rem);background
     <div class="chart-card"><div class="chart-title">Wins per Player</div><div class="bar-chart" id="winsChart"></div></div>
     <div class="chart-card"><div class="chart-title">Avg Score per Player</div><div class="bar-chart" id="avgChart"></div></div>
     <div class="chart-card full">
+      <div class="chart-title">Score History — Last 20 Games</div>
+      <div style="overflow-x:auto"><svg id="scoreSvg" height="200" width="100%" style="display:block"></svg></div>
+    </div>
+    <div class="chart-card full">
       <div class="chart-title">Win History — Last 20 Games</div>
       <div style="overflow-x:auto"><svg id="timelineSvg" height="80" width="100%" style="display:block"></svg></div>
+    </div>
+    <div class="chart-card full">
+      <div class="chart-title">Monthly Breakdown</div>
+      <div id="monthlyChart"><div style="color:var(--muted);font-size:0.8rem;font-style:italic;font-weight:700">No data yet</div></div>
     </div>
   </div>
 
@@ -302,6 +320,10 @@ h1{font-family:'Fredoka One',cursive;font-size:clamp(2rem,6vw,3.2rem);background
     <button class="mbtn-add" onclick="doAddPlayer()">Add 🍣</button>
   </div>
 </div>
+
+<!-- ROUND SUMMARY MODAL -->
+<div class="modal-ov" id="rsmOv" onclick="closeRoundSummary()"></div>
+<div class="modal-box" id="rsmBox" style="max-width:480px"><div id="rsmInner"></div></div>
 
 <!-- STATS MODAL -->
 <div class="modal-ov" id="statsOv" onclick="closeStats()"></div>
@@ -741,7 +763,68 @@ function saveInputs(){
   if(G('gni')) gNote=G('gni').value;
 }
 function switchRound(r){ saveInputs(); currentRound=r; renderScoring(); }
-function nextRound(){ saveInputs(); if(currentRound<2){ currentRound++; renderScoring(); } }
+function nextRound(){ saveInputs(); if(currentRound<2){ showRoundSummary(currentRound); } }
+
+// ─── Round summary popup ─────────────────────────────────
+function showRoundSummary(r){
+  // Build totals for rounds 0..r inclusive
+  const roundPtsFor=(pid,rr)=>roundPts(pid,rr);
+  const thisPts={}, cumPts={};
+  activePids.forEach(pid=>{
+    thisPts[pid]=roundPtsFor(pid,r);
+    cumPts[pid]=runningTotal(pid,r+1);
+  });
+  const sorted=[...activePids].sort((a,b)=>cumPts[b]-cumPts[a]);
+  const medals=['🥇','🥈','🥉','4th','5th','6th','7th','8th'];
+
+  // Build breakdown of this round's points
+  function breakdown(pid){
+    const rd=roundData[r];
+    const parts=[];
+    const cardPts=Number((rd.scores||{})[pid])||0;
+    if(cardPts) parts.push('Cards: +'+cardPts);
+    if(rd.maki){
+      const mostPids=(rd.maki.mostPids||[]).map(String);
+      const secondPids=(rd.maki.secondPids||[]).map(String);
+      const isMostTied=mostPids.length>1;
+      if(mostPids.includes(String(pid))) parts.push('Maki 1st: +'+(+(6/mostPids.length).toFixed(1)));
+      if(!isMostTied && secondPids.includes(String(pid))) parts.push('Maki 2nd: +'+(+(3/secondPids.length).toFixed(1)));
+    }
+    return parts.join(' · ')||'—';
+  }
+
+  const rows=sorted.map((pid,i)=>{
+    const p=pid2p(pid); if(!p)return'';
+    const pc=clr(p.colorIdx);
+    const isTop=i===0;
+    return `<tr${isTop?' class="rsm-winner"':''}>
+      <td><span class="rsm-rank">${medals[i]||'#'+(i+1)}</span></td>
+      <td style="color:${pc.l};font-weight:800">${H(p.name)}</td>
+      <td style="color:${pc.l};font-family:'DM Mono',monospace;font-size:0.8rem">${breakdown(pid)}</td>
+      <td style="color:${pc.l}">+${thisPts[pid]}</td>
+      <td class="rsm-total" style="color:${pc.l}">${cumPts[pid]}</td>
+    </tr>`;
+  }).join('');
+
+  G('rsmInner').innerHTML=`
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px">
+      <div style="font-family:'Fredoka One',cursive;font-size:1.3rem;color:var(--pink)">Round ${r+1} Complete!</div>
+      <button class="mbtn-cancel" onclick="closeRoundSummary()">✕</button>
+    </div>
+    <table class="rsm-table">
+      <thead><tr><th></th><th>Player</th><th>This Round</th><th>+Pts</th><th>Total</th></tr></thead>
+      <tbody>${rows}</tbody>
+    </table>
+    <div style="margin-top:14px">
+      <button class="btn-primary" style="width:100%" onclick="closeRoundSummary(true)">Round ${r+2} →</button>
+    </div>`;
+
+  G('rsmOv').classList.add('show'); G('rsmBox').classList.add('show');
+}
+function closeRoundSummary(advance){
+  G('rsmOv').classList.remove('show'); G('rsmBox').classList.remove('show');
+  if(advance){ currentRound++; renderScoring(); }
+}
 
 // ─── Finish game ─────────────────────────────────────────
 async function finishGame(){
@@ -790,7 +873,7 @@ async function clearAll(){
 function showToast(msg){ const t=G('toast'); t.textContent=msg; t.classList.add('show'); setTimeout(()=>t.classList.remove('show'),2400); }
 
 // ══ RENDER ALL ══════════════════════════════════════════
-function renderAll(){ renderLeaderboard(); renderLeader(); renderRecord(); renderStats(); renderCharts(); renderTimeline(); renderHistory(); }
+function renderAll(){ renderLeaderboard(); renderLeader(); renderRecord(); renderStats(); renderCharts(); renderScoreChart(); renderTimeline(); renderMonthly(); renderHistory(); }
 
 // ─── LEADERBOARD (FIX #7: best score + stats btn) ───────
 function renderLeaderboard(){
@@ -956,10 +1039,19 @@ function renderHistory(){
     if(b.date&&a.date){const dc=b.date.localeCompare(a.date);if(dc!==0)return dc;}
     return(b.id||0)-(a.id||0);
   });
-  el.innerHTML=sorted.map(gm=>{
-    const num=games.length-games.findIndex(x=>x.fbKey===gm.fbKey);
+  // Find the game with the highest single-player score for the "best game" badge
+  let bestGameFbKey=null, bestGameScore=0;
+  sorted.forEach(gm=>{
+    if(!gm.totals)return;
+    const topScore=Math.max(...Object.values(gm.totals).map(Number));
+    if(topScore>bestGameScore){bestGameScore=topScore;bestGameFbKey=gm.fbKey;}
+  });
+
+  el.innerHTML=sorted.map((gm,listIdx)=>{
+    const num=sorted.length-listIdx;
     const wp=pid2p(gm.winner), pc=wp?clr(wp.colorIdx):{c:'var(--muted)',l:'var(--muted)',bg:'rgba(255,255,255,0.05)'};
     const fk=H(gm.fbKey||''), isExp=expandedId===gm.fbKey;
+    const isBest=gm.fbKey&&gm.fbKey===bestGameFbKey&&games.length>1;
     const pids=(gm.playerIds||[]).map(String);
     const sorted2=[...pids].sort((a,b)=>(Number((gm.totals||{})[b])||0)-(Number((gm.totals||{})[a])||0));
     const scoreRows=sorted2.map(pid=>{
@@ -974,14 +1066,15 @@ function renderHistory(){
       </tr>`;
     }).join('');
     return `<div class="game-card${isExp?' expanded':''}">
-      <div class="gc-hdr" data-fbkey="${fk}" onclick="toggleExp(this.dataset.fbkey)">
+      <div class="gc-hdr" data-fbkey="${fk}" onclick="toggleExp(this.dataset.fbkey)" style="${isBest?'border-left:3px solid var(--yellow);padding-left:11px':''}">
         <span class="g-num">#${num}</span>
         <span class="g-badge" style="background:${pc.bg};color:${pc.l}">🏆 ${wp?H(wp.name):'?'}</span>
         <span class="g-date">📅 ${fmtDate(gm.date)}</span>
-        <span style="font-size:0.7rem;color:var(--muted)">${pids.length}p</span>
+        <span style="font-size:0.7rem;color:${isBest?'var(--yellow)':'var(--muted)'};font-weight:800">${isBest?'⭐ Best':''+pids.length+'p'}</span>
         <span class="g-exp">▼</span>
       </div>
       <div class="gc-body"><div class="gc-inner">
+        ${isBest?`<div style="font-size:0.72rem;font-weight:800;color:var(--yellow);margin-bottom:8px;letter-spacing:0.04em">⭐ Best Game — highest score: ${bestGameScore} pts</div>`:''}
         ${gm.note?`<div style="font-size:0.74rem;color:var(--muted);margin-bottom:8px;font-style:italic">📝 ${H(gm.note)}</div>`:''}
         <table class="rtable">
           <thead><tr><th>Player</th><th>R1</th><th>R2</th><th>R3</th><th>Total</th></tr></thead>
@@ -1015,12 +1108,115 @@ function histRoundPts(gm, pid, r){
 
 function toggleExp(id){ expandedId=(expandedId===id?null:id); renderHistory(); }
 
+// ─── SCORE HISTORY CHART ────────────────────────────────
+function renderScoreChart(){
+  const svg=G('scoreSvg'); if(!svg)return;
+  // Only include games that have totals with at least 2 players
+  const scored=games.filter(g=>g.totals&&Object.keys(g.totals).length>=2).slice(-20);
+  if(!scored.length){svg.innerHTML='<text x="12" y="100" fill="var(--muted)" font-family="Nunito" font-size="13" font-weight="700" font-style="italic">No scored games yet</text>';return;}
+  const W=svg.clientWidth||820,H=200,pL=36,pR=16,pT=14,pB=40;
+  // Collect all scores across all players in all games to find max
+  const allScores=scored.flatMap(g=>Object.values(g.totals||{}).map(Number)).filter(s=>s>0);
+  if(!allScores.length){svg.innerHTML='<text x="12" y="100" fill="var(--muted)" font-family="Nunito" font-size="13" font-weight="700" font-style="italic">No scores yet</text>';return;}
+  const mx=Math.max(...allScores,1);
+  const ys=v=>pT+(1-v/mx)*(H-pT-pB);
+  const xs=(i,n)=>pL+(i/Math.max(n-1,1))*(W-pL-pR);
+  const bot=H-pB;
+  let html='';
+  // Grid lines
+  [0.25,0.5,0.75,1].forEach(f=>{
+    const y=ys(mx*f),val=Math.round(mx*f);
+    html+='<line x1="'+pL+'" y1="'+y+'" x2="'+(W-pR)+'" y2="'+y+'" stroke="rgba(255,255,255,0.06)" stroke-width="1"/>';
+    html+='<text x="'+(pL-4)+'" y="'+(y+4)+'" text-anchor="end" fill="var(--muted)" font-family="DM Mono" font-size="9">'+val+'</text>';
+  });
+  // One line per player — only players who appear in these games
+  const pidSet=new Set(scored.flatMap(g=>Object.keys(g.totals||{})));
+  const activePlayers=players.filter(p=>pidSet.has(String(p.id)));
+  activePlayers.forEach(p=>{
+    const pc=clr(p.colorIdx);
+    const pts=scored.map((g,i)=>({i,v:g.totals&&g.totals[p.id]!=null?Number(g.totals[p.id]):null})).filter(d=>d.v!==null);
+    if(!pts.length)return;
+    let path='', area='';
+    pts.forEach(d=>{
+      const x=xs(d.i,scored.length), y=ys(d.v);
+      path+=(path?'L':'M')+x+','+y+' ';
+      area+=(area?'L':'M')+x+','+y+' ';
+    });
+    const lastX=xs(pts[pts.length-1].i,scored.length), firstX=xs(pts[0].i,scored.length);
+    html+='<path d="'+area+'L'+lastX+','+bot+'L'+firstX+','+bot+'Z" fill="'+pc.c+'" opacity="0.07"/>';
+    html+='<path d="'+path+'" fill="none" stroke="'+pc.c+'" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/>';
+    pts.forEach(d=>{
+      const x=xs(d.i,scored.length), y=ys(d.v);
+      html+='<circle cx="'+x+'" cy="'+y+'" r="4" fill="'+pc.c+'" stroke="var(--bg)" stroke-width="2"><title>'+H(p.name)+': '+d.v+'</title></circle>';
+    });
+  });
+  // Legend
+  let legX=pL;
+  activePlayers.forEach(p=>{
+    const pc=clr(p.colorIdx);
+    html+='<rect x="'+legX+'" y="'+(H-26)+'" width="12" height="3" rx="2" fill="'+pc.c+'"/>';
+    html+='<text x="'+(legX+16)+'" y="'+(H-19)+'" fill="'+pc.l+'" font-family="Nunito" font-size="10" font-weight="800">'+H(p.name)+'</text>';
+    legX+=p.name.length*7+28;
+  });
+  svg.innerHTML=html;
+}
+
+// ─── MONTHLY BREAKDOWN ──────────────────────────────────
+function renderMonthly(){
+  const el=G('monthlyChart'); if(!el)return;
+  if(!games.length){el.innerHTML='<div style="color:var(--muted);font-size:0.8rem;font-style:italic;font-weight:700">No data yet</div>';return;}
+  const months={};
+  const mn=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  // Build a win count per player per month
+  games.forEach(g=>{
+    if(!g.date)return;
+    const key=g.date.substring(0,7);
+    if(!months[key])months[key]={key,wins:{},games:0,scores:[]};
+    months[key].games++;
+    if(g.winner) months[key].wins[String(g.winner)]=(months[key].wins[String(g.winner)]||0)+1;
+    if(g.totals) Object.values(g.totals).forEach(v=>{ if(Number(v)>0) months[key].scores.push(Number(v)); });
+  });
+  const sorted=Object.values(months).sort((a,b)=>b.key.localeCompare(a.key));
+
+  // Build header columns per player (up to 4 to keep it readable)
+  const displayPlayers=players.slice(0,4);
+
+  const headerCols=displayPlayers.map(p=>`<th style="color:${clr(p.colorIdx).l}">${H(p.name)}</th>`).join('');
+  const rows=sorted.map(m=>{
+    const [y,mo]=m.key.split('-');
+    const lbl=mn[parseInt(mo)-1]+' '+y;
+    const avg=m.scores.length?Math.round(m.scores.reduce((a,b)=>a+b,0)/m.scores.length):null;
+    // Who led this month?
+    const topPid=Object.keys(m.wins).sort((a,b)=>m.wins[b]-m.wins[a])[0];
+    const topP=topPid?pid2p(topPid):null;
+    const lead=topP?`<span style="color:${clr(topP.colorIdx).l}"> ▲</span>`:'';
+    const winCols=displayPlayers.map(p=>`<td style="color:${clr(p.colorIdx).l};font-family:'DM Mono',monospace">${m.wins[String(p.id)]||0}</td>`).join('');
+    return `<tr>
+      <td style="color:var(--cream);font-weight:700">${lbl}${lead}</td>
+      ${winCols}
+      <td style="color:var(--muted);font-family:'DM Mono',monospace">${m.games}</td>
+      <td style="color:var(--yellow);font-family:'DM Mono',monospace">${avg||'—'}</td>
+    </tr>`;
+  }).join('');
+
+  el.innerHTML=`<table style="width:100%;border-collapse:collapse">
+    <thead><tr style="font-size:0.6rem;text-transform:uppercase;letter-spacing:0.08em;color:var(--muted);font-weight:800">
+      <th style="text-align:left;padding:4px 8px 8px">Month</th>
+      ${headerCols}
+      <th>Games</th><th style="color:var(--yellow)">Avg</th>
+    </tr></thead>
+    <tbody style="font-size:0.82rem;font-weight:700">${rows}</tbody>
+  </table>`;
+}
+
+function toggleExp(id){ expandedId=(expandedId===id?null:id); renderHistory(); }
+
 // ══ BOOT ════════════════════════════════════════════════
 lsLoad();
 setStatus('connecting');
 renderAll();
 startSync();
-window.addEventListener('resize',()=>{ clearTimeout(window._rt); window._rt=setTimeout(renderTimeline,150); });
+window.addEventListener('resize',()=>{ clearTimeout(window._rt); window._rt=setTimeout(()=>{ renderTimeline(); renderScoreChart(); },150); });
 </script>
 </body>
 </html>

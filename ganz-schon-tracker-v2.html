@@ -268,7 +268,7 @@ h1{font-family:'Fredoka One',cursive;font-size:clamp(2rem,6vw,3.4rem);
   overflow:hidden;transition:border-color 0.2s,box-shadow 0.2s;cursor:pointer;}
 .game-card:hover{border-color:rgba(245,200,66,0.3);box-shadow:0 4px 20px rgba(0,0,0,0.3);}
 .game-card.expanded{border-color:var(--yellow);}
-.game-card-header{display:grid;grid-template-columns:32px auto 1fr auto auto;
+.game-card-header{display:grid;grid-template-columns:32px auto 1fr auto auto auto;
   align-items:center;gap:10px;padding:11px 14px;}
 .g-num{font-family:'DM Mono',monospace;font-size:0.68rem;color:var(--muted);font-weight:500;}
 .g-winner-badge{font-size:0.75rem;font-weight:800;padding:3px 10px;border-radius:20px;white-space:nowrap;}
@@ -429,6 +429,8 @@ h1{font-family:'Fredoka One',cursive;font-size:clamp(2rem,6vw,3.4rem);
 .edit-cancel-btn:hover{border-color:var(--red2);color:var(--red2);}
 .edit-save-btn{background:linear-gradient(135deg,var(--yellow),var(--orange));border:none;
   border-radius:8px;color:#1a0a00;cursor:pointer;font-family:'Fredoka One',cursive;font-size:0.88rem;padding:7px 16px;}
+.g-note-pip{font-size:0.85rem;cursor:pointer;opacity:0.85;transition:transform 0.15s;}
+.g-note-pip:hover{transform:scale(1.2);}
 .game-card-edit-btn{background:none;border:1.5px solid var(--border);border-radius:6px;color:var(--muted);
   cursor:pointer;font-size:0.75rem;font-family:'Nunito',sans-serif;font-weight:700;padding:3px 10px;transition:all 0.15s;}
 .game-card-edit-btn:hover{border-color:var(--yellow);color:var(--yellow);}
@@ -439,7 +441,7 @@ h1{font-family:'Fredoka One',cursive;font-size:clamp(2rem,6vw,3.4rem);
   .charts-grid{grid-template-columns:1fr;}
   .chart-card.full{grid-column:1;}
   .extras-row{grid-template-columns:1fr;}
-  .game-card-header{grid-template-columns:28px auto 1fr auto;}
+  .game-card-header{grid-template-columns:28px auto 1fr auto auto;}
   .g-date-col{display:none;}
   .game-detail-grid{grid-template-columns:1fr 1fr;}
 }
@@ -551,39 +553,48 @@ h1{font-family:'Fredoka One',cursive;font-size:clamp(2rem,6vw,3.4rem);
     <button class="btn-submit" id="subBtn" onclick="addGame()" disabled>↑ Pick a winner first!</button>
   </div>
 
-  <!-- STATS -->
-  <div class="stats-row">
-    <div class="stat-pill"><div class="val" id="stTotal">0</div><div class="lbl">🎲 Games</div></div>
-    <div class="stat-pill"><div class="val" id="stAvg">—</div><div class="lbl">📊 Avg Score</div></div>
-    <div class="stat-pill"><div class="val" id="stHigh">—</div><div class="lbl">⭐ High Score</div></div>
-    <div class="stat-pill"><div class="val" id="stStreak">—</div><div class="lbl">🔥 Best Streak</div><div class="streak-player-name" id="stStreakPlayer"></div></div>
-  </div>
-
-  <!-- CHARTS -->
-  <div class="charts-grid">
-    <div class="chart-card">
-      <div class="chart-title">Win Distribution</div>
-      <div class="donut-wrap" id="donutWrap"><div style="color:var(--muted);font-size:0.8rem;font-style:italic;font-weight:700">No data yet</div></div>
+  <!-- STATS + CHARTS (collapsible) -->
+  <div class="collapsible-section open" id="statsSection">
+    <div class="collapsible-header" onclick="toggleSection('statsSection')">
+      <span class="collapsible-title">📊 Statistics &amp; Charts</span>
+      <span class="collapsible-meta" id="statsMeta"></span>
+      <span class="collapsible-chevron">▼</span>
     </div>
-    <div class="chart-card">
-      <div class="chart-title">First Player Advantage?</div>
-      <div class="bar-chart" id="starterChart"><div style="color:var(--muted);font-size:0.8rem;font-style:italic;font-weight:700">No data yet</div></div>
-    </div>
-    <div class="chart-card full">
-      <div class="chart-title">Score History</div>
-      <div class="chart-svg-wrap"><svg class="chart-svg" id="scoreSvg" width="100%" height="240"></svg></div>
-    </div>
-    <div class="chart-card full">
-      <div class="chart-title">Win Timeline — Last 20 Games</div>
-      <div class="chart-svg-wrap"><svg class="chart-svg" id="timelineSvg" width="100%" height="80"></svg></div>
-    </div>
-    <div class="chart-card full">
-      <div class="chart-title">Score Margin — Who Dominated Each Game?</div>
-      <div class="chart-svg-wrap"><svg class="chart-svg" id="marginSvg" width="100%" height="130"></svg></div>
-    </div>
-    <div class="chart-card full">
-      <div class="chart-title">Monthly Breakdown</div>
-      <div id="monthlyChart"><div style="color:var(--muted);font-size:0.8rem;font-style:italic;font-weight:700">No data yet</div></div>
+    <div class="collapsible-body">
+      <div class="collapsible-inner">
+        <div class="stats-row">
+          <div class="stat-pill"><div class="val" id="stTotal">0</div><div class="lbl">🎲 Games</div></div>
+          <div class="stat-pill"><div class="val" id="stAvg">—</div><div class="lbl">📊 Avg Score</div></div>
+          <div class="stat-pill"><div class="val" id="stHigh">—</div><div class="lbl">⭐ High Score</div><div class="streak-player-name" id="stHighPlayer"></div></div>
+          <div class="stat-pill"><div class="val" id="stStreak">—</div><div class="lbl">🔥 Best Streak</div><div class="streak-player-name" id="stStreakPlayer"></div></div>
+        </div>
+        <div class="charts-grid">
+          <div class="chart-card">
+            <div class="chart-title">Win Distribution</div>
+            <div class="donut-wrap" id="donutWrap"><div style="color:var(--muted);font-size:0.8rem;font-style:italic;font-weight:700">No data yet</div></div>
+          </div>
+          <div class="chart-card">
+            <div class="chart-title">First Player Advantage?</div>
+            <div class="bar-chart" id="starterChart"><div style="color:var(--muted);font-size:0.8rem;font-style:italic;font-weight:700">No data yet</div></div>
+          </div>
+          <div class="chart-card full">
+            <div class="chart-title">Score History</div>
+            <div class="chart-svg-wrap"><svg class="chart-svg" id="scoreSvg" width="100%" height="240"></svg></div>
+          </div>
+          <div class="chart-card full">
+            <div class="chart-title">Win Timeline — Last 20 Games</div>
+            <div class="chart-svg-wrap"><svg class="chart-svg" id="timelineSvg" width="100%" height="80"></svg></div>
+          </div>
+          <div class="chart-card full">
+            <div class="chart-title">Score Margin — Who Dominated Each Game?</div>
+            <div class="chart-svg-wrap"><svg class="chart-svg" id="marginSvg" width="100%" height="130"></svg></div>
+          </div>
+          <div class="chart-card full">
+            <div class="chart-title">Monthly Breakdown</div>
+            <div id="monthlyChart"><div style="color:var(--muted);font-size:0.8rem;font-style:italic;font-weight:700">No data yet</div></div>
+          </div>
+        </div>
+      </div>
     </div>
   </div>
 
@@ -618,6 +629,10 @@ h1{font-family:'Fredoka One',cursive;font-size:clamp(2rem,6vw,3.4rem);
     </div>
     <div class="collapsible-body">
       <div class="collapsible-inner">
+        <div style="display:flex;gap:8px;margin-bottom:14px;flex-wrap:wrap;">
+          <button class="filter-btn active" id="achBtn1" onclick="setAchFilter(1,this)" id="achBtnP1">🔴 <span id="achBtnLabel1">Sofia</span></button>
+          <button class="filter-btn" id="achBtn2" onclick="setAchFilter(2,this)" id="achBtnP2">🔵 <span id="achBtnLabel2">Joey</span></button>
+        </div>
         <div class="ach-grid" id="achGrid"></div>
       </div>
     </div>
@@ -661,7 +676,7 @@ const ROOT = 'gsc';
 
 // ══ STATE ════════════════════════════════════════════════════════════
 let games = [], names = { n1:'Sofia', n2:'Joey' };
-let selWinner = null, filterMode = 'all', expandedId = null, editingId = null;
+let selWinner = null, filterMode = 'all', expandedId = null, editingId = null, achFilterPlayer = 1;
 let isOnline = false, pollTimer = null;
 
 // ══ SEED DATA ════════════════════════════════════════════════════════
@@ -1044,23 +1059,45 @@ function renderLeader(){
   if(!games.length){el.innerHTML="No games yet — let's play! 🎲";return;}
   if(w1===w2){el.innerHTML='🤝 Dead even at '+w1+' win'+(w1!==1?'s':'')+' each!';return;}
   const lead=w1>w2?p1():p2(),diff=Math.abs(w1-w2);
-  el.innerHTML='👑 <strong>'+lead+'</strong> is winning! Up by '+diff+' game'+(diff>1?'s':'')+' 🔥';
+  el.innerHTML='👑 <strong>'+lead+'</strong>' + ' is winning! Up by '+diff+' game'+(diff>1?'s':'')+' 🔥';
 }
 function renderStats(){
   G('stTotal').textContent=games.length;
-  if(!games.length){['stAvg','stHigh','stStreak'].forEach(id=>G(id).textContent='—');G('stStreakPlayer').textContent='';return;}
+  if(!games.length){['stAvg','stHigh','stStreak'].forEach(id=>G(id).textContent='—');G('stStreakPlayer').textContent='';G('stHighPlayer').textContent='';return;}
   const all=games.flatMap(g=>[g.score1,g.score2]).filter(s=>s>0);
   G('stAvg').textContent=all.length?Math.round(all.reduce((a,b)=>a+b,0)/all.length):'—';
-  G('stHigh').textContent=all.length?Math.max(...all):'—';
-  let best=1,cur=1,bestWinner=games[0].winner;
-  for(let i=1;i<games.length;i++){
-    if(games[i].winner===games[i-1].winner){cur++;if(cur>best){best=cur;bestWinner=games[i].winner;}}
-    else cur=1;
+  // Find high score and who got it
+  let highScore=0, highWinner=null;
+  games.forEach(g=>{
+    if((g.score1||0)>highScore){highScore=g.score1;highWinner=1;}
+    if((g.score2||0)>highScore){highScore=g.score2;highWinner=2;}
+  });
+  G('stHigh').textContent=highScore>0?highScore:'—';
+  const hpEl=G('stHighPlayer');
+  if(highWinner&&highScore>0){
+    hpEl.textContent=highWinner===1?p1():p2();
+    hpEl.style.color=highWinner===1?'var(--p1l)':'var(--p2l)';
+  } else {
+    hpEl.textContent='';
   }
-  G('stStreak').textContent=best+'🔥';
+  // Streak: walk through games finding longest consecutive run by same player
+  let best=0,cur=1,bestWinner=null,curWinner=games[0]?games[0].winner:null;
+  for(let i=1;i<games.length;i++){
+    if(games[i].winner===curWinner){ cur++; if(cur>best){best=cur;bestWinner=curWinner;} }
+    else{ if(cur>best){best=cur;bestWinner=curWinner;} cur=1; curWinner=games[i].winner; }
+  }
+  // Handle single-element array or end of loop
+  if(cur>best){best=cur;bestWinner=curWinner;}
   const spEl=G('stStreakPlayer');
-  spEl.textContent=bestWinner===1?p1():p2();
-  spEl.style.color=bestWinner===1?'var(--p1l)':'var(--p2l)';
+  if(best>=2){
+    G('stStreak').textContent=best+'🔥';
+    spEl.textContent=bestWinner===1?p1():p2();
+    spEl.style.color=bestWinner===1?'var(--p1l)':'var(--p2l)';
+  } else {
+    G('stStreak').textContent='—';
+    spEl.textContent='No streak yet';
+    spEl.style.color='var(--muted)';
+  }
 }
 function renderDonut(){
   const w1=games.filter(g=>g.winner===1).length,w2=games.filter(g=>g.winner===2).length,t=w1+w2,wrap=G('donutWrap');
@@ -1299,12 +1336,36 @@ function renderMonthlyBreakdown(){
 }
 
 // ══ ACHIEVEMENTS ══════════════════════════════════════════════════════
+function setAchFilter(player, btn){
+  achFilterPlayer=player;
+  document.querySelectorAll('#achBtn1,#achBtn2').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  renderAchievements();
+}
 function renderAchievements(){
   const el=G('achGrid'),cnt=G('achCount');
-  const unlocked=ACHIEVEMENTS.filter(a=>a.check(games));
-  cnt.textContent=unlocked.length+' / '+ACHIEVEMENTS.length+' unlocked';
+  // Update button labels with current player names
+  const lb1=G('achBtnLabel1'), lb2=G('achBtnLabel2');
+  if(lb1) lb1.textContent=p1();
+  if(lb2) lb2.textContent=p2();
+  // Filter games to just this player's wins/scores
+  const pGames = achFilterPlayer===1
+    ? games.map(g=>({...g, score2:0, winner: g.winner===1?1:2}))   // keep score1, mask score2
+    : games.map(g=>({...g, score1:0, score2:g.score2, winner: g.winner===2?1:2})); // remap p2 as p1
+  // For score achievements we need to check individual player scores, so build a parallel array
+  const myScoreGames = games.map(g=>({
+    ...g,
+    score1: achFilterPlayer===1 ? (g.score1||0) : (g.score2||0),
+    score2: 0,
+    winner: g.winner===achFilterPlayer ? 1 : 2
+  }));
+  const unlocked=ACHIEVEMENTS.filter(a=>a.check(myScoreGames));
+  const total=ACHIEVEMENTS.length;
+  const pName=achFilterPlayer===1?p1():p2();
+  const pCol=achFilterPlayer===1?'var(--p1l)':'var(--p2l)';
+  cnt.textContent=unlocked.length+' / '+total+' unlocked by '+pName;
   el.innerHTML=ACHIEVEMENTS.map(a=>{
-    const ok=a.check(games);
+    const ok=a.check(myScoreGames);
     return `<div class="ach-card ${ok?'unlocked':'locked'}">
       <span class="ach-emoji">${a.emoji}</span>
       <div class="ach-name">${a.name}</div>
@@ -1337,8 +1398,10 @@ function renderHistory(){
   const hm=G('historyMeta');
   if(hm)hm.textContent=games.length?games.length+' game'+(games.length!==1?'s':''):'';
   if(!list.length){el.innerHTML='<div class="empty-state"><span class="big">🎲</span>No games to show yet!</div>';return;}
-  el.innerHTML=list.map(gm=>{
-    const num=games.length-games.findIndex(x=>x.fbKey===gm.fbKey);
+  // Assign correct chronological numbers (oldest game = #1, newest = #total)
+  // sorted list is newest-first, so item[0] gets number = total, item[last] gets 1
+  el.innerHTML=list.map((gm,listIdx)=>{
+    const num=list.length-listIdx;
     const wName=gm.winner===1?p1():p2(),wCls=gm.winner===1?'p1':'p2';
     const sName=gm.starter===1?p1():p2();
     const hasS=gm.score1>0||gm.score2>0,sc1=gm.score1||0,sc2=gm.score2||0;
@@ -1405,6 +1468,7 @@ function renderHistory(){
         <span class="g-winner-badge ${wCls}">🏆 ${wName}</span>
         <span class="g-date-col">📅 ${fmtDate(gm.date)}</span>
         ${hasS?`<span class="g-score-preview"><span class="s1">${sc1}</span> <span style="color:var(--muted)">–</span> <span class="s2">${sc2}</span></span>`:'<span></span>'}
+        ${gm.note?`<span class="g-note-pip" title="${gm.note.replace(/"/g,'&quot;')}">📝</span>`:'<span></span>'}
         <span class="g-expand-icon">▼</span>
       </div>
       <div class="game-card-body"><div class="game-card-inner">
