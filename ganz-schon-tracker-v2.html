@@ -45,7 +45,7 @@ body::before{content:'';position:fixed;inset:0;
   background-image:url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.02'%3E%3Crect x='10' y='10' width='14' height='14' rx='3'/%3E%3Crect x='36' y='36' width='14' height='14' rx='3'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
   pointer-events:none;z-index:0;}
 
-.container{max-width:880px;margin:0 auto;padding:20px 16px 100px;position:relative;z-index:1;}
+.container{max-width:880px;margin:0 auto;padding:60px 16px 100px;position:relative;z-index:1;}
 
 /* ══ HEADER ══ */
 .header{text-align:center;padding:32px 0 24px;}
@@ -213,7 +213,7 @@ h1{font-family:'Fredoka One',cursive;font-size:clamp(2rem,6vw,3.4rem);
 .popup-overlay.show{opacity:1;pointer-events:auto;}
 
 /* ══ STATS ROW ══ */
-.stats-row{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:16px;}
+.stats-row{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:16px;overflow:hidden;}
 .stat-pill{background:var(--card);border:2px solid var(--border);border-radius:var(--radius2);
   padding:14px 8px;text-align:center;position:relative;overflow:hidden;}
 .stat-pill::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;}
@@ -221,7 +221,7 @@ h1{font-family:'Fredoka One',cursive;font-size:clamp(2rem,6vw,3.4rem);
 .stat-pill:nth-child(2)::before{background:linear-gradient(90deg,var(--blue),var(--purple));}
 .stat-pill:nth-child(3)::before{background:linear-gradient(90deg,var(--green),var(--blue2));}
 .stat-pill:nth-child(4)::before{background:linear-gradient(90deg,var(--red),var(--orange));}
-.stat-pill .val{font-family:'Fredoka One',cursive;font-size:1.4rem;color:var(--yellow);}
+.stat-pill .val{font-family:'Fredoka One',cursive;font-size:1.4rem;color:var(--yellow);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:100%;}
 .stat-pill .lbl{font-size:0.6rem;text-transform:uppercase;letter-spacing:0.1em;color:var(--muted);margin-top:2px;font-weight:800;}
 
 /* ══ CHARTS ══ */
@@ -257,6 +257,14 @@ h1{font-family:'Fredoka One',cursive;font-size:clamp(2rem,6vw,3.4rem);
   color:var(--muted);cursor:pointer;font-size:0.68rem;font-family:'Nunito',sans-serif;
   letter-spacing:0.06em;padding:5px 12px;text-transform:uppercase;transition:all 0.15s;font-weight:800;}
 .filter-btn.active,.filter-btn:hover{border-color:var(--yellow);color:var(--yellow);}
+.gsc-filter-toggle{background:none;border:1.5px solid var(--border);border-radius:8px;color:var(--muted);font-size:0.68rem;font-family:'Nunito',sans-serif;font-weight:800;padding:5px 12px;cursor:pointer;text-transform:uppercase;letter-spacing:0.05em;transition:all 0.15s;}
+.gsc-filter-toggle:hover,.gsc-filter-toggle.active{border-color:var(--yellow);color:var(--yellow);}
+.gsc-filter-panel{background:var(--card2);border:1.5px solid var(--border);border-radius:12px;padding:12px 14px;display:flex;flex-direction:column;gap:10px;margin-bottom:10px;}
+.gsc-filter-row{display:flex;align-items:center;gap:10px;}
+.gsc-filter-lbl{font-size:0.62rem;text-transform:uppercase;letter-spacing:0.08em;color:var(--muted);font-weight:800;min-width:72px;flex-shrink:0;}
+.gsc-filter-sel{background:var(--card);border:2px solid var(--border);border-radius:8px;color:var(--cream);font-family:'Nunito',sans-serif;font-size:0.78rem;font-weight:700;padding:5px 10px;outline:none;width:100%;}
+.gsc-reset-btn{background:none;border:1px solid rgba(232,72,85,0.3);border-radius:7px;color:var(--red2);font-size:0.66rem;font-family:'Nunito',sans-serif;font-weight:800;padding:5px 12px;cursor:pointer;align-self:flex-start;}
+.gsc-reset-btn:hover{background:rgba(232,72,85,0.1);}
 .clear-btn{background:none;border:2px solid rgba(232,72,85,0.3);border-radius:8px;color:var(--red2);
   cursor:pointer;font-size:0.68rem;font-family:'Nunito',sans-serif;letter-spacing:0.06em;
   padding:5px 12px;text-transform:uppercase;transition:all 0.15s;font-weight:800;}
@@ -264,6 +272,24 @@ h1{font-family:'Fredoka One',cursive;font-size:clamp(2rem,6vw,3.4rem);
 .history-list{display:flex;flex-direction:column;gap:8px;}
 
 /* Expandable game card */
+.colour-table{width:100%;border-collapse:collapse;margin:10px 0 4px;font-size:0.78rem;}
+.colour-table th{font-size:0.58rem;text-transform:uppercase;letter-spacing:0.07em;color:var(--muted);font-weight:800;padding:4px 8px;text-align:center;border-bottom:1px solid var(--border);}
+.colour-table th:first-child{text-align:left;}
+.colour-table td{padding:5px 8px;text-align:center;font-weight:700;font-family:'DM Mono',monospace;border-bottom:1px solid rgba(255,255,255,0.04);}
+.colour-table td:first-child{text-align:left;font-family:'Nunito',sans-serif;font-size:0.72rem;}
+.colour-table tr.total-row td{font-family:'Fredoka One',cursive;font-size:0.95rem;border-top:2px solid var(--border);border-bottom:none;}
+.scan-btn{display:inline-flex;align-items:center;gap:5px;background:linear-gradient(135deg,var(--yellow),var(--orange));border:none;border-radius:8px;color:var(--bg);font-family:'Fredoka One',cursive;font-size:0.82rem;padding:6px 14px;cursor:pointer;margin-top:8px;}
+.scan-btn:hover{opacity:0.9;}
+.scan-modal-ov{position:fixed;inset:0;background:rgba(0,0,0,0.75);z-index:9000;opacity:0;pointer-events:none;transition:opacity 0.25s;}
+.scan-modal-ov.show{opacity:1;pointer-events:auto;}
+.scan-modal{position:fixed;top:50%;left:50%;transform:translate(-50%,-50%) scale(0.92);z-index:9001;width:94%;max-width:480px;max-height:90vh;overflow-y:auto;background:var(--card);border:2px solid var(--border);border-radius:var(--radius);padding:22px;opacity:0;pointer-events:none;transition:all 0.25s;box-shadow:0 20px 60px rgba(0,0,0,0.7);}
+.scan-modal.show{opacity:1;pointer-events:auto;transform:translate(-50%,-50%) scale(1);}
+.colour-input-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:10px 0;}
+.colour-row{display:flex;align-items:center;gap:8px;padding:7px 10px;border-radius:8px;background:var(--card2);}
+.colour-dot{width:12px;height:12px;border-radius:50%;flex-shrink:0;}
+.colour-row label{font-size:0.72rem;font-weight:800;flex:1;}
+.colour-row input{background:var(--card3);border:1.5px solid var(--border);border-radius:6px;color:var(--cream);font-family:'DM Mono',monospace;font-size:0.9rem;text-align:center;width:52px;padding:4px;outline:none;}
+.colour-row input:focus{border-color:var(--yellow);}
 .game-card{background:var(--card2);border:2px solid var(--border);border-radius:12px;
   overflow:hidden;transition:border-color 0.2s,box-shadow 0.2s;cursor:pointer;}
 .game-card:hover{border-color:rgba(245,200,66,0.3);box-shadow:0 4px 20px rgba(0,0,0,0.3);}
@@ -371,6 +397,13 @@ h1{font-family:'Fredoka One',cursive;font-size:clamp(2rem,6vw,3.4rem);
 .ach-emoji{font-size:1.7rem;display:block;margin-bottom:5px;}
 .ach-name{font-size:0.72rem;font-weight:800;color:var(--cream);margin-bottom:3px;}
 .ach-desc{font-size:0.59rem;color:var(--muted);font-weight:700;line-height:1.4;}
+.admin-bar{position:fixed;top:0;left:0;right:0;z-index:9999;background:rgba(10,15,25,0.97);
+  border-bottom:1px solid var(--border);backdrop-filter:blur(10px);
+  display:flex;align-items:center;justify-content:space-between;padding:6px 16px;gap:8px;}
+.admin-bar-left{display:flex;align-items:center;gap:8px;font-size:0.7rem;font-weight:800;}
+.admin-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;}
+.admin-dot.live{background:var(--green);}
+.admin-dot.ro{background:var(--yellow);}
 @keyframes achUnlock{0%{transform:scale(0.7);opacity:0}70%{transform:scale(1.08)}100%{transform:scale(1);opacity:1}}
 .ach-card.just-unlocked{animation:achUnlock 0.45s cubic-bezier(0.34,1.56,0.64,1);}
 
@@ -438,6 +471,8 @@ h1{font-family:'Fredoka One',cursive;font-size:clamp(2rem,6vw,3.4rem);
 /* ══ RESPONSIVE ══ */
 @media(max-width:600px){
   .stats-row{grid-template-columns:repeat(2,1fr);}
+  .stat-pill .val{font-size:1.2rem;}
+  .stat-pill .lbl{font-size:0.55rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
   .charts-grid{grid-template-columns:1fr;}
   .chart-card.full{grid-column:1;}
   .extras-row{grid-template-columns:1fr;}
@@ -468,7 +503,7 @@ h1{font-family:'Fredoka One',cursive;font-size:clamp(2rem,6vw,3.4rem);
   <div class="scoreboard">
     <div class="score-card p1" id="sc1">
       <input class="pname" id="name1" value="Sofia" maxlength="14" autocomplete="off">
-      <div class="wcount" id="wins1">0</div>
+      <div style="display:flex;align-items:center;justify-content:center;gap:4px"><div class="wcount" id="wins1">0</div><span id="trend1" style="font-size:0.8rem"></span></div>
       <div class="wlabel">Wins</div>
       <div class="wpct" id="pct1">—</div>
       <span class="best-score-badge" id="best1"></span>
@@ -482,7 +517,7 @@ h1{font-family:'Fredoka One',cursive;font-size:clamp(2rem,6vw,3.4rem);
     </div>
     <div class="score-card p2" id="sc2">
       <input class="pname" id="name2" value="Joey" maxlength="14" autocomplete="off">
-      <div class="wcount" id="wins2">0</div>
+      <div style="display:flex;align-items:center;justify-content:center;gap:4px"><div class="wcount" id="wins2">0</div><span id="trend2" style="font-size:0.8rem"></span></div>
       <div class="wlabel">Wins</div>
       <div class="wpct" id="pct2">—</div>
       <span class="best-score-badge" id="best2"></span>
@@ -535,6 +570,11 @@ h1{font-family:'Fredoka One',cursive;font-size:clamp(2rem,6vw,3.4rem);
       </div>
     </div>
 
+    <div style="margin:-4px 0 12px">
+      <button type="button" onclick="openScanModalNew()" class="scan-btn" style="width:100%;justify-content:center">
+        📸 Scan Score Sheet &mdash; auto-fill scores
+      </button>
+    </div>
     <div class="sec-label">⚙️ Game details</div>
     <div class="extras-row">
       <div class="fgroup">
@@ -558,6 +598,7 @@ h1{font-family:'Fredoka One',cursive;font-size:clamp(2rem,6vw,3.4rem);
     <div class="collapsible-header" onclick="toggleSection('statsSection')">
       <span class="collapsible-title">📊 Statistics &amp; Charts</span>
       <span class="collapsible-meta" id="statsMeta"></span>
+      <button onclick="event.stopPropagation();openGscShareModal('stats')" style="background:none;border:1.5px solid var(--border);border-radius:7px;color:var(--muted);font-size:0.62rem;font-family:'Nunito',sans-serif;font-weight:800;padding:3px 9px;cursor:pointer;flex-shrink:0">&#x1F4E4; Share</button>
       <span class="collapsible-chevron">▼</span>
     </div>
     <div class="collapsible-body">
@@ -591,7 +632,7 @@ h1{font-family:'Fredoka One',cursive;font-size:clamp(2rem,6vw,3.4rem);
           </div>
           <div class="chart-card full">
             <div class="chart-title">Monthly Breakdown</div>
-            <div id="monthlyChart"><div style="color:var(--muted);font-size:0.8rem;font-style:italic;font-weight:700">No data yet</div></div>
+            <div style="overflow-x:auto;-webkit-overflow-scrolling:touch"><div id="monthlyChart" style="min-width:320px"><div style="color:var(--muted);font-size:0.8rem;font-style:italic;font-weight:700">No data yet</div></div>
           </div>
         </div>
       </div>
@@ -603,6 +644,7 @@ h1{font-family:'Fredoka One',cursive;font-size:clamp(2rem,6vw,3.4rem);
     <div class="collapsible-header" onclick="toggleSection('historySection')">
       <span class="collapsible-title">📋 Game History</span>
       <span class="collapsible-meta" id="historyMeta"></span>
+      <button onclick="event.stopPropagation();openGscShareModal('history')" style="background:none;border:1.5px solid var(--border);border-radius:7px;color:var(--muted);font-size:0.62rem;font-family:'Nunito',sans-serif;font-weight:800;padding:3px 9px;cursor:pointer;flex-shrink:0">&#x1F4E4; Share</button>
       <span class="collapsible-chevron">▼</span>
     </div>
     <div class="collapsible-body">
@@ -611,7 +653,32 @@ h1{font-family:'Fredoka One',cursive;font-size:clamp(2rem,6vw,3.4rem);
           <button class="filter-btn active" onclick="setFilter('all',this)">All</button>
           <button class="filter-btn" id="fBtn1" onclick="setFilter('p1',this)">Sofia</button>
           <button class="filter-btn" id="fBtn2" onclick="setFilter('p2',this)">Joey</button>
-          <button class="clear-btn" onclick="clearAll()">Clear All</button>
+          <button class="gsc-filter-toggle" onclick="gscToggleFilterPanel(this)" id="gscFilterBtn">&#x2699; Filter &#x25BC;</button>
+          <button class="clear-btn admin-only" onclick="clearAll()" style="display:none">Clear All</button>
+        </div>
+        <div id="gscFilterPanel" class="gsc-filter-panel" style="display:none">
+          <div class="gsc-filter-row">
+            <span class="gsc-filter-lbl">Date range</span>
+            <select id="gscDateRange" class="gsc-filter-sel" onchange="applyGscDateRange()">
+              <option value="">All time</option>
+              <option value="7">Last 7 days</option>
+              <option value="30">Last 30 days</option>
+              <option value="90">Last 3 months</option>
+              <option value="365">This year</option>
+              <option value="custom">Custom range&hellip;</option>
+            </select>
+          </div>
+          <div id="gscCustomDates" style="display:none;flex-direction:column;gap:6px">
+            <div class="gsc-filter-row">
+              <span class="gsc-filter-lbl">From</span>
+              <input type="date" id="gscDateFrom" class="gsc-filter-sel" onchange="renderHistory()">
+            </div>
+            <div class="gsc-filter-row">
+              <span class="gsc-filter-lbl">To</span>
+              <input type="date" id="gscDateTo" class="gsc-filter-sel" onchange="renderHistory()">
+            </div>
+          </div>
+          <button onclick="clearGscFilter()" class="gsc-reset-btn">&#x2715; Reset dates</button>
         </div>
         <div class="history-list" id="historyList">
           <div class="empty-state"><span class="big">🎲</span>Your game history will appear here!</div>
@@ -641,6 +708,112 @@ h1{font-family:'Fredoka One',cursive;font-size:clamp(2rem,6vw,3.4rem);
 </div>
 
 <!-- SYNC STATUS BAR -->
+<!-- SCAN SHEET MODAL -->
+<div class="scan-modal-ov" id="scanOv" onclick="closeScanModal()"></div>
+<div class="scan-modal" id="scanModal">
+  <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px">
+    <div style="font-family:'Fredoka One',cursive;font-size:1.2rem;color:var(--yellow)">&#x1F4F8; Scan Score Sheet</div>
+    <button onclick="closeScanModal()" style="background:none;border:2px solid var(--border);border-radius:8px;color:var(--muted);cursor:pointer;font-family:'Nunito',sans-serif;font-size:0.85rem;font-weight:800;padding:6px 14px;">&#x2715;</button>
+  </div>
+  <div id="scanStatus" style="font-size:0.82rem;color:var(--muted);font-weight:700;margin-bottom:12px">Take or upload a photo of the score sheet.</div>
+  <div style="display:flex;gap:8px;margin-bottom:14px">
+    <label style="flex:1;background:linear-gradient(135deg,var(--yellow),var(--orange));border:none;border-radius:10px;color:var(--bg);font-family:'Fredoka One',cursive;font-size:0.92rem;padding:11px;cursor:pointer;text-align:center;display:block">
+      &#x1F4F7; Take Photo
+      <input type="file" id="scanFileCamera" accept="image/*" capture="environment" style="display:none" onchange="handleScanFile(this)">
+    </label>
+    <label style="flex:1;background:var(--card2);border:2px solid var(--border);border-radius:10px;color:var(--cream);font-family:'Fredoka One',cursive;font-size:0.92rem;padding:11px;cursor:pointer;text-align:center;display:block">
+      &#x1F5BC; Gallery
+      <input type="file" id="scanFileGallery" accept="image/*" style="display:none" onchange="handleScanFile(this)">
+    </label>
+  </div>
+  <img id="scanPreview" style="display:none;width:100%;border-radius:10px;margin-bottom:12px;max-height:200px;object-fit:cover">
+  <div id="scanResults" style="display:none">
+    <div style="font-size:0.68rem;text-transform:uppercase;letter-spacing:0.1em;color:var(--muted);font-weight:800;margin-bottom:10px">Detected Scores — edit if needed</div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:14px">
+      <div>
+        <div style="font-size:0.72rem;font-weight:800;margin-bottom:6px" id="scanP1Label">Player 1</div>
+        <div id="scanP1Rows" class="colour-input-grid" style="grid-template-columns:1fr"></div>
+      </div>
+      <div>
+        <div style="font-size:0.72rem;font-weight:800;margin-bottom:6px" id="scanP2Label">Player 2</div>
+        <div id="scanP2Rows" class="colour-input-grid" style="grid-template-columns:1fr"></div>
+      </div>
+    </div>
+    <button id="scanSaveBtn" onclick="saveScanResults()" style="width:100%;background:linear-gradient(135deg,var(--yellow),var(--orange));border:none;border-radius:12px;color:var(--bg);font-family:'Fredoka One',cursive;font-size:1rem;padding:12px;cursor:pointer">&#x2713; Save Colour Scores</button>
+  </div>
+</div>
+
+<!-- GSC SHARE MODAL -->
+<div style="position:fixed;inset:0;background:rgba(0,0,0,0.72);z-index:8000;opacity:0;pointer-events:none;transition:opacity 0.25s;cursor:pointer;" id="gscShareOv" onclick="closeGscShareModal()"></div>
+<div id="gscShareBox" style="position:fixed;top:50%;left:50%;transform:translate(-50%,-50%) scale(0.92);z-index:8001;width:94%;max-width:520px;max-height:90vh;overflow-y:auto;background:var(--card);border:2px solid var(--border);border-radius:var(--radius);padding:22px;box-shadow:0 20px 60px rgba(0,0,0,0.7);opacity:0;pointer-events:none;transition:all 0.25s;">
+  <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px">
+    <div style="font-family:'Fredoka One',cursive;font-size:1.2rem;color:var(--yellow)">&#x1F4E4; Share</div>
+    <button onclick="closeGscShareModal()" style="background:none;border:2px solid var(--border);border-radius:8px;color:var(--muted);cursor:pointer;font-family:'Nunito',sans-serif;font-size:0.85rem;font-weight:800;padding:6px 14px;">&#x2715; Close</button>
+  </div>
+  <div style="display:flex;gap:6px;margin-bottom:10px;flex-wrap:wrap">
+    <button onclick="setGscShareTab('stats')" id="gscShareTabStats" style="background:var(--yellow);border:none;border-radius:8px;color:var(--bg);font-family:'Fredoka One',cursive;font-size:0.82rem;padding:5px 12px;cursor:pointer">&#x1F4CA; Stats</button>
+    <button onclick="setGscShareTab('history')" id="gscShareTabHistory" style="background:var(--card2);border:2px solid var(--border);border-radius:8px;color:var(--muted);font-family:'Fredoka One',cursive;font-size:0.82rem;padding:5px 12px;cursor:pointer">&#x1F4CB; History</button>
+    <button onclick="setGscShareTab('last')" id="gscShareTabLast" style="background:var(--card2);border:2px solid var(--border);border-radius:8px;color:var(--muted);font-family:'Fredoka One',cursive;font-size:0.82rem;padding:5px 12px;cursor:pointer">&#x1F3C6; Last Game</button>
+  </div>
+  <div id="gscShareDateRow" style="display:flex;align-items:center;gap:8px;margin-bottom:10px;flex-wrap:wrap">
+    <span style="font-size:0.62rem;text-transform:uppercase;letter-spacing:0.08em;color:var(--muted);font-weight:800;flex-shrink:0">Period</span>
+    <select id="gscShareDatePreset" style="flex:1;background:var(--card2);border:2px solid var(--border);border-radius:8px;color:var(--cream);font-family:'Nunito',sans-serif;font-size:0.78rem;font-weight:700;padding:5px 10px;outline:none;" onchange="applyGscShareDatePreset()">
+      <option value="">All time</option>
+      <option value="7">Last 7 days</option>
+      <option value="30">Last 30 days</option>
+      <option value="90">Last 3 months</option>
+      <option value="365">This year</option>
+      <option value="custom">Custom range...</option>
+    </select>
+  </div>
+  <div id="gscShareDateCustom" style="display:none;flex-direction:column;gap:8px;margin-bottom:10px">
+    <div style="display:flex;align-items:center;gap:8px">
+      <span style="font-size:0.62rem;text-transform:uppercase;letter-spacing:0.08em;color:var(--muted);font-weight:800;min-width:32px">From</span>
+      <input type="date" id="gscShareDateFrom" style="flex:1;background:var(--card2);border:2px solid var(--border);border-radius:8px;color:var(--cream);font-family:'Nunito',sans-serif;font-size:0.78rem;font-weight:700;padding:5px 10px;outline:none;" onchange="refreshGscShareText()">
+    </div>
+    <div style="display:flex;align-items:center;gap:8px">
+      <span style="font-size:0.62rem;text-transform:uppercase;letter-spacing:0.08em;color:var(--muted);font-weight:800;min-width:32px">To</span>
+      <input type="date" id="gscShareDateTo" style="flex:1;background:var(--card2);border:2px solid var(--border);border-radius:8px;color:var(--cream);font-family:'Nunito',sans-serif;font-size:0.78rem;font-weight:700;padding:5px 10px;outline:none;" onchange="refreshGscShareText()">
+    </div>
+  </div>
+  <textarea id="gscShareText" readonly style="width:100%;height:200px;background:var(--card2);border:2px solid var(--border);border-radius:10px;color:var(--cream);font-family:'DM Mono',monospace;font-size:0.72rem;padding:12px;outline:none;resize:none;line-height:1.6;margin-bottom:10px"></textarea>
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px">
+    <button onclick="copyGscShareText()" style="background:linear-gradient(135deg,var(--yellow),var(--orange));border:none;border-radius:10px;color:var(--bg);font-family:'Fredoka One',cursive;font-size:0.82rem;padding:10px 4px;cursor:pointer">&#x1F4CB; Copy text</button>
+    <button onclick="nativeGscShare()" style="background:var(--card2);border:2px solid var(--border);border-radius:10px;color:var(--cream);font-family:'Fredoka One',cursive;font-size:0.82rem;padding:10px 4px;cursor:pointer">&#x1F4F1; Share text</button>
+  </div>
+  <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px">
+    <button onclick="exportGscCsv()" style="background:var(--card2);border:2px solid rgba(61,220,151,0.4);border-radius:10px;color:var(--green);font-family:'Fredoka One',cursive;font-size:0.82rem;padding:10px 4px;cursor:pointer">&#x1F4CA; CSV</button>
+    <button onclick="exportGscXlsx()" style="background:var(--card2);border:2px solid rgba(61,220,151,0.4);border-radius:10px;color:var(--green);font-family:'Fredoka One',cursive;font-size:0.82rem;padding:10px 4px;cursor:pointer">&#x1F4D7; Excel</button>
+    <button onclick="exportGscPdf()" style="background:var(--card2);border:2px solid rgba(232,72,85,0.4);border-radius:10px;color:var(--red2);font-family:'Fredoka One',cursive;font-size:0.82rem;padding:10px 4px;cursor:pointer">&#x1F4C4; PDF</button>
+  </div>
+</div>
+
+<!-- ADMIN BAR -->
+<div class="admin-bar" id="adminBar">
+  <div class="admin-bar-left">
+    <span class="admin-dot" id="adminDot"></span>
+    <span id="adminStatus">Checking...</span>
+  </div>
+  <div style="display:flex;gap:6px">
+    <button id="adminLoginBtn" onclick="openLoginModal()" style="display:none;background:linear-gradient(135deg,var(--yellow),var(--orange));border:none;border-radius:7px;color:var(--bg);font-family:'Fredoka One',cursive;font-size:0.72rem;padding:4px 12px;cursor:pointer">&#x1F512; Admin Login</button>
+    <button id="adminLogoutBtn" onclick="adminLogout()" style="display:none;background:none;border:1.5px solid var(--border);border-radius:7px;color:var(--muted);font-family:Nunito,sans-serif;font-size:0.7rem;font-weight:800;padding:4px 10px;cursor:pointer">Log out</button>
+  </div>
+</div>
+
+<!-- LOGIN MODAL -->
+<div class="modal-ov" id="loginOv" onclick="closeLoginModal()"></div>
+<div class="modal-box" id="loginBox" style="max-width:360px">
+  <div style="font-family:'Fredoka One',cursive;font-size:1.2rem;color:var(--yellow);margin-bottom:16px">&#x1F512; Admin Login</div>
+  <input class="modal-input" id="loginEmail" type="email" placeholder="Email address" autocomplete="email" style="margin-bottom:10px">
+  <input class="modal-input" id="loginPass" type="password" placeholder="Password" autocomplete="current-password" onkeydown="if(event.key==='Enter')doLogin()" style="margin-bottom:6px">
+  <div id="loginError" style="font-size:0.75rem;color:var(--red);font-weight:700;min-height:18px;margin-bottom:10px"></div>
+  <div class="modal-btns">
+    <button class="btn-cancel" onclick="closeLoginModal()">Cancel</button>
+    <button id="loginSubmitBtn" onclick="doLogin()" style="background:linear-gradient(135deg,var(--yellow),var(--orange));border:none;border-radius:10px;color:var(--bg);font-family:'Fredoka One',cursive;font-size:0.92rem;padding:10px 22px;cursor:pointer">&#x1F511; Log In</button>
+  </div>
+  <div style="font-size:0.65rem;color:var(--muted);margin-top:12px;text-align:center">Admin access only. Read-only for everyone else.</div>
+</div>
+
 <div class="save-bar" style="flex-direction:column;gap:6px;padding:8px 16px 12px;">
   <span id="syncStatus" class="save-hint" style="font-size:0.75rem;text-align:center;">⏳ Connecting…</span>
   <button onclick="manualSync()" style="background:var(--card2);border:1px solid var(--border);border-radius:8px;color:var(--muted);font-size:0.7rem;font-family:Nunito,sans-serif;font-weight:700;padding:4px 14px;cursor:pointer;touch-action:manipulation;">🔄 Retry connection</button>
@@ -785,7 +958,8 @@ async function fbFetch(){
 }
 
 async function fbWrite(path, data){
-  await fetch(DB+'/'+ROOT+'/'+path+'.json', {
+  if(!isAdmin){if(typeof showToast==='function')showToast('\uD83D\uDD12 Log in as admin to make changes');return;}
+  await fetch(DB+'/'+ROOT+'/'+path+'.json'+_authHeader(), {
     method:'PUT',
     headers:{'Content-Type':'application/json'},
     body: JSON.stringify(data)
@@ -793,7 +967,8 @@ async function fbWrite(path, data){
 }
 
 async function fbPatch(path, data){
-  await fetch(DB+'/'+ROOT+'/'+path+'.json', {
+  if(!isAdmin){if(typeof showToast==='function')showToast('\uD83D\uDD12 Log in as admin to make changes');return;}
+  await fetch(DB+'/'+ROOT+'/'+path+'.json'+_authHeader(), {
     method:'PATCH',
     headers:{'Content-Type':'application/json'},
     body: JSON.stringify(data)
@@ -801,7 +976,8 @@ async function fbPatch(path, data){
 }
 
 async function fbDelete(path){
-  await fetch(DB+'/'+ROOT+'/'+path+'.json', {method:'DELETE'});
+  if(!isAdmin){if(typeof showToast==='function')showToast('\uD83D\uDD12 Log in as admin to make changes');return;}
+  await fetch(DB+'/'+ROOT+'/'+path+'.json'+_authHeader(), {method:'DELETE'});
 }
 
 // Convert Firebase object {key:{...}} to sorted array
@@ -810,6 +986,10 @@ function fbObjToArr(obj){
   return Object.entries(obj)
     .map(([fbKey,g])=>({fbKey,...g}))
     .sort((a,b)=>(a.id||0)-(b.id||0));
+}
+// Ensure colours field is preserved when syncing
+function normaliseGame(g){
+  return Object.assign({},g);
 }
 
 // ══ SYNC — poll every 5 seconds ═══════════════════════════════════════
@@ -861,6 +1041,11 @@ async function sync(){
 // ══ FIREBASE WRITES ══════════════════════════════════════════════════
 
 async function fbPushGame(gm, silent){
+  // Check for personal bests before saving
+  const pb1=games.length?Math.max(...games.map(g=>g.score1||0)):0;
+  const pb2=games.length?Math.max(...games.map(g=>g.score2||0)):0;
+  if(gm.score1>pb1&&gm.score1>0) setTimeout(()=>showToast('🎉 New personal best for '+p1()+'! '+gm.score1+' pts'),800);
+  if(gm.score2>pb2&&gm.score2>0) setTimeout(()=>showToast('🎉 New personal best for '+p2()+'! '+gm.score2+' pts'),1400);
   // Use timestamp as key so it's sortable
   const key = 'game_'+(gm.id||Date.now());
   try{
@@ -910,10 +1095,12 @@ function syncNames(){
 let nameTimer;
 G('name1').addEventListener('input',()=>{
   names.n1=G('name1').value; syncNames(); renderAll();
+  if(!isAdmin) return; // don't save to Firebase if not admin
   clearTimeout(nameTimer); nameTimer=setTimeout(fbSaveNames,1000);
 });
 G('name2').addEventListener('input',()=>{
   names.n2=G('name2').value; syncNames(); renderAll();
+  if(!isAdmin) return;
   clearTimeout(nameTimer); nameTimer=setTimeout(fbSaveNames,1000);
 });
 
@@ -955,7 +1142,8 @@ async function addGame(){
 
   const note=(G('gameNote').value||'').trim();
   const prevGames=[...games];
-  const gm={id:Date.now(),winner:selWinner,starter:parseInt(G('starter').value),score1:sc1,score2:sc2,date:G('gameDate').value,...(note?{note}:{})};
+  const gm={id:Date.now(),winner:selWinner,starter:parseInt(G('starter').value),score1:sc1,score2:sc2,date:G('gameDate').value,...(note?{note}:{}),...(pendingColours?{colours:pendingColours}:{})};
+  pendingColours=null; // clear after use
 
   // Reset form immediately so it feels snappy
   selWinner=null;
@@ -1001,6 +1189,43 @@ function toggleSection(id){
   el.classList.toggle('open');
 }
 
+function gscToggleFilterPanel(btn){
+  const panel=document.getElementById('gscFilterPanel');
+  if(!panel)return;
+  const open=panel.style.display==='none'||panel.style.display==='';
+  panel.style.display=open?'flex':'none';
+  if(btn){btn.classList.toggle('active',open);btn.innerHTML=open?'&#x2699; Filter &#x25B2;':'&#x2699; Filter &#x25BC;';}
+}
+
+function applyGscDateRange(){
+  const sel=document.getElementById('gscDateRange');
+  const cd=document.getElementById('gscCustomDates');
+  const f=document.getElementById('gscDateFrom');
+  const t=document.getElementById('gscDateTo');
+  if(!sel)return;
+  if(sel.value==='custom'){
+    if(cd){cd.style.display='flex';cd.style.flexDirection='column';}
+  } else {
+    if(cd)cd.style.display='none';
+    if(sel.value===''){
+      if(f)f.value=''; if(t)t.value='';
+    } else {
+      const days=parseInt(sel.value);
+      const toD=new Date(); const fromD=new Date();
+      fromD.setDate(fromD.getDate()-days);
+      const fmt=d=>d.toISOString().split('T')[0];
+      if(f)f.value=fmt(fromD); if(t)t.value=fmt(toD);
+    }
+    renderHistory();
+  }
+}
+
+function clearGscFilter(){
+  ['gscDateRange','gscDateFrom','gscDateTo'].forEach(id=>{const e=document.getElementById(id);if(e)e.value='';});
+  const cd=document.getElementById('gscCustomDates');if(cd)cd.style.display='none';
+  renderHistory();
+}
+
 function setFilter(m,btn){
   filterMode=m;
   document.querySelectorAll('.filter-btn').forEach(b=>b.classList.remove('active'));
@@ -1041,8 +1266,23 @@ function renderScoreboard(){
   G('best2').textContent=bs2>0?'🏅 Best: '+bs2:'';
   G('sc1').classList.toggle('leading',w1>w2&&t>0);
   G('sc2').classList.toggle('leading',w2>w1&&t>0);
+  // Score trend arrows
+  function scoreTrend(pl){
+    const sc=games.map(g=>pl===1?g.score1:g.score2).filter(s=>s>0);
+    if(sc.length<4)return'';
+    const overall=sc.reduce((a,b)=>a+b)/sc.length;
+    const recent=sc.slice(-5).reduce((a,b)=>a+b)/Math.min(5,sc.length);
+    const d=recent-overall;
+    if(d>5)return'<span style="color:var(--green)" title="Score trending up lately">↑</span>';
+    if(d<-5)return'<span style="color:var(--red2)" title="Score trending down">↓</span>';
+    return'<span style="color:var(--muted)" title="Score stable">→</span>';
+  }
+  const t1=G('trend1'),t2=G('trend2');
+  if(t1)t1.innerHTML=scoreTrend(1);
+  if(t2)t2.innerHTML=scoreTrend(2);
+  const sbSorted=[...games].sort((a,b)=>{if(a.date&&b.date){const dc=a.date.localeCompare(b.date);if(dc!==0)return dc;}return(a.id||0)-(b.id||0);});
   let streak=0,sw=0;
-  for(let i=games.length-1;i>=0;i--){ if(i===games.length-1){sw=games[i].winner;streak=1;} else if(games[i].winner===sw)streak++; else break; }
+  for(let i=sbSorted.length-1;i>=0;i--){ if(i===sbSorted.length-1){sw=sbSorted[i].winner;streak=1;} else if(sbSorted[i].winner===sw)streak++; else break; }
   const sb=G('streakBadge');
   if(games.length&&streak>1){ sb.textContent=streak+'🔥 '+(sw===1?p1():p2()).substring(0,6); sb.style.color=sw===1?'var(--p1l)':'var(--p2l)'; }
   else sb.textContent='';
@@ -1057,9 +1297,11 @@ function renderScoreboard(){
 function renderLeader(){
   const w1=games.filter(g=>g.winner===1).length,w2=games.filter(g=>g.winner===2).length,el=G('leaderBanner');
   if(!games.length){el.innerHTML="No games yet — let's play! 🎲";return;}
-  if(w1===w2){el.innerHTML='🤝 Dead even at '+w1+' win'+(w1!==1?'s':'')+' each!';return;}
-  const lead=w1>w2?p1():p2(),diff=Math.abs(w1-w2);
-  el.innerHTML='👑 <strong>'+lead+' </strong>is winning! Up by '+diff+' game'+(diff>1?'s':'')+' 🔥';
+  const t=games.length,wr1=Math.round(w1/t*100),wr2=Math.round(w2/t*100);
+  const h2h='<span style="font-size:0.8rem;opacity:0.7"> ('+wr1+'% vs '+wr2+'%)</span>';
+  if(w1===w2){el.innerHTML='🤝 Dead even at '+w1+' win'+(w1!==1?'s':'')+' each!'+h2h;return;}
+  const lead=w1>w2?p1():p2(),diff=Math.abs(w1-w2),leadCol=w1>w2?'var(--p1l)':'var(--p2l)';
+  el.innerHTML='👑 <strong style="color:'+leadCol+'">'+lead+'</strong> leads by '+diff+' game'+(diff>1?'s':'')+h2h;
 }
 function renderStats(){
   G('stTotal').textContent=games.length;
@@ -1080,14 +1322,17 @@ function renderStats(){
   } else {
     hpEl.textContent='';
   }
-  // Streak: walk through games finding longest consecutive run by same player
-  let best=0,cur=1,bestWinner=null,curWinner=games[0]?games[0].winner:null;
-  for(let i=1;i<games.length;i++){
-    if(games[i].winner===curWinner){ cur++; if(cur>best){best=cur;bestWinner=curWinner;} }
-    else{ if(cur>best){best=cur;bestWinner=curWinner;} cur=1; curWinner=games[i].winner; }
-  }
-  // Handle single-element array or end of loop
-  if(cur>best){best=cur;bestWinner=curWinner;}
+  // Streak: sort games chronologically first, then find longest consecutive run
+  const gSorted=[...games].sort((a,b)=>{
+    if(a.date&&b.date){const dc=a.date.localeCompare(b.date);if(dc!==0)return dc;}
+    return(a.id||0)-(b.id||0);
+  });
+  let best=0,cur=0,bestWinner=null,curWinner=null;
+  gSorted.forEach(g=>{
+    if(g.winner===curWinner){ cur++; }
+    else{ cur=1; curWinner=g.winner; }
+    if(cur>best){ best=cur; bestWinner=curWinner; }
+  });
   const spEl=G('stStreakPlayer');
   if(best>=2){
     G('stStreak').textContent=best+'🔥';
@@ -1114,7 +1359,7 @@ function renderStarterChart(){
   el.innerHTML=rows.map(r=>'<div class="bar-row"><div class="bname">'+r.sub+'<br><span style="color:var(--muted);font-size:0.6rem;font-weight:700">'+r.label+'</span></div><div class="bar-track"><div class="bar-fill" style="width:'+Math.round(r.val/mx*100)+'%;background:'+r.col+'"></div></div><div class="bar-val">'+r.val+'/'+r.tot+'</div></div>').join('');
 }
 function renderScoreChart(){
-  const svg=G('scoreSvg'),scored=games.filter(g=>g.score1>0||g.score2>0).slice(-20);
+  const svg=G('scoreSvg'),scored=[...games].filter(g=>g.score1>0||g.score2>0).sort((a,b)=>{if(a.date&&b.date){const dc=a.date.localeCompare(b.date);if(dc!==0)return dc;}return(a.id||0)-(b.id||0);}).slice(-20);
   if(!scored.length){svg.innerHTML='<text x="12" y="100" fill="var(--muted)" font-family="Nunito" font-size="13" font-weight="700" font-style="italic">No scores yet!</text>';return;}
   const W=svg.clientWidth||820,H=240,pL=40,pR=16,pT=18,pB=46;
   const all=scored.flatMap(g=>[g.score1,g.score2]).filter(s=>s>0),mx=Math.max(...all,1);
@@ -1169,7 +1414,7 @@ function renderScoreChart(){
   svg.innerHTML=html;
 }
 function renderTimeline(){
-  const svg=G('timelineSvg'),last=games.slice(-20);
+  const svg=G('timelineSvg'),last=[...games].sort((a,b)=>{if(a.date&&b.date){const dc=a.date.localeCompare(b.date);if(dc!==0)return dc;}return(a.id||0)-(b.id||0);}).slice(-20);
   if(!last.length){svg.innerHTML='<text x="12" y="40" fill="var(--muted)" font-family="Nunito" font-size="13" font-weight="700" font-style="italic">No data yet</text>';return;}
   const W=svg.clientWidth||820,H=80,pad=20,step=(W-pad*2)/Math.max(last.length-1,1);
   let html='<line x1="'+pad+'" y1="'+(H/2)+'" x2="'+(W-pad)+'" y2="'+(H/2)+'" stroke="rgba(255,255,255,0.06)" stroke-width="2" stroke-dasharray="4 3"/>';
@@ -1204,9 +1449,13 @@ function showPlayerStats(player){
   let curStreak=0,curSW=null;
   for(let i=games.length-1;i>=0;i--){if(i===games.length-1){curSW=games[i].winner;curStreak=1;}else if(games[i].winner===curSW)curStreak++;else break;}
   const onStreak=curSW===player&&curStreak>1;
-  // Best streak for this player
+  // Best streak for this player — sort chronologically first
+  const pgSorted=[...games].sort((a,b)=>{
+    if(a.date&&b.date){const dc=a.date.localeCompare(b.date);if(dc!==0)return dc;}
+    return(a.id||0)-(b.id||0);
+  });
   let bestStreak=0,curS=0;
-  games.forEach(g=>{if(g.winner===player){curS++;bestStreak=Math.max(bestStreak,curS);}else curS=0;});
+  pgSorted.forEach(g=>{if(g.winner===player){curS++;bestStreak=Math.max(bestStreak,curS);}else curS=0;});
   // Score tier distribution
   const tiers=PHRASES.map(t=>({...t,count:scores.filter(s=>s>=t.min&&s<=t.max).length})).filter(t=>t.count>0).reverse();
   const maxTC=Math.max(...tiers.map(t=>t.count),1);
@@ -1274,7 +1523,7 @@ async function saveEdit(fbKey){
 
 // ══ SCORE MARGIN CHART ════════════════════════════════════════════════
 function renderScoreMarginChart(){
-  const svg=G('marginSvg'),scored=games.filter(g=>g.score1>0&&g.score2>0).slice(-20);
+  const svg=G('marginSvg'),scored=[...games].filter(g=>g.score1>0&&g.score2>0).sort((a,b)=>{if(a.date&&b.date){const dc=a.date.localeCompare(b.date);if(dc!==0)return dc;}return(a.id||0)-(b.id||0);}).slice(-20);
   if(scored.length<2){svg.innerHTML='<text x="12" y="65" fill="var(--muted)" font-family="Nunito" font-size="13" font-weight="700" font-style="italic">Need at least 2 scored games</text>';return;}
   const W=svg.clientWidth||820,H=130,pL=42,pR=16,pT=12,pB=32;
   const margins=scored.map(g=>g.score1-g.score2),maxAbs=Math.max(...margins.map(Math.abs),1);
@@ -1363,7 +1612,7 @@ function renderAchievements(){
   const total=ACHIEVEMENTS.length;
   const pName=achFilterPlayer===1?p1():p2();
   const pCol=achFilterPlayer===1?'var(--p1l)':'var(--p2l)';
-  cnt.textContent=unlocked.length+' / '+total+' unlocked by '+pName;
+  cnt.textContent=unlocked.length+' / '+total+' unlocked';
   el.innerHTML=ACHIEVEMENTS.map(a=>{
     const ok=a.check(myScoreGames);
     return `<div class="ach-card ${ok?'unlocked':'locked'}">
@@ -1387,6 +1636,39 @@ function fmtDate(d){
   const mo=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
   return mo[parseInt(p[1])-1]+' '+parseInt(p[2])+', '+p[0];
 }
+function gscToggleFilterPanel(btn){
+  const panel=G('gscFilterPanel'); if(!panel)return;
+  const open=panel.style.display==='none'||!panel.style.display;
+  panel.style.display=open?'flex':'none';
+  if(btn){ btn.classList.toggle('active',open); btn.innerHTML=open?'&#x2699; Filter &#x25B2;':'&#x2699; Filter &#x25BC;'; }
+}
+
+function applyGscDateRange(){
+  const sel=G('gscDateRange'), cd=G('gscCustomDates');
+  const f=G('gscDateFrom'), t=G('gscDateTo');
+  if(!sel)return;
+  if(sel.value==='custom'){
+    if(cd){ cd.style.display='flex'; cd.style.flexDirection='column'; }
+  } else {
+    if(cd)cd.style.display='none';
+    if(sel.value===''){
+      if(f)f.value=''; if(t)t.value='';
+    } else {
+      const to=new Date(); to.setHours(23,59,59);
+      const from=new Date(); from.setDate(from.getDate()-parseInt(sel.value)); from.setHours(0,0,0);
+      const fmt=d=>d.toISOString().split('T')[0];
+      if(f)f.value=fmt(from); if(t)t.value=fmt(to);
+    }
+    renderHistory();
+  }
+}
+
+function clearGscFilter(){
+  ['gscDateRange','gscDateFrom','gscDateTo'].forEach(id=>{const e=G(id);if(e)e.value='';});
+  const cd=G('gscCustomDates'); if(cd)cd.style.display='none';
+  renderHistory();
+}
+
 function renderHistory(){
   const el=G('historyList');
   let list=[...games].sort((a,b)=>{
@@ -1395,6 +1677,13 @@ function renderHistory(){
   });
   if(filterMode==='p1')list=list.filter(x=>x.winner===1);
   if(filterMode==='p2')list=list.filter(x=>x.winner===2);
+  // Apply date filters
+  const df=G('gscDateFrom'), dt=G('gscDateTo');
+  if(df&&df.value) list=list.filter(g=>g.date&&g.date>=df.value);
+  if(dt&&dt.value) list=list.filter(g=>g.date&&g.date<=dt.value);
+  const gscDF=document.getElementById('gscDateFrom'), gscDT=document.getElementById('gscDateTo');
+  if(gscDF&&gscDF.value) list=list.filter(g=>g.date&&g.date>=gscDF.value);
+  if(gscDT&&gscDT.value) list=list.filter(g=>g.date&&g.date<=gscDT.value);
   const hm=G('historyMeta');
   if(hm)hm.textContent=games.length?games.length+' game'+(games.length!==1?'s':''):'';
   if(!list.length){el.innerHTML='<div class="empty-state"><span class="big">🎲</span>No games to show yet!</div>';return;}
@@ -1406,6 +1695,7 @@ function renderHistory(){
     const sName=gm.starter===1?p1():p2();
     const hasS=gm.score1>0||gm.score2>0,sc1=gm.score1||0,sc2=gm.score2||0;
     const margin=hasS?Math.abs(sc1-sc2):null,isExp=expandedId===gm.fbKey;
+    const notePreview=gm.note&&!isExp?'<span style="font-size:0.65rem;color:var(--muted);font-style:italic;margin-left:4px">📝 '+gm.note.substring(0,30)+(gm.note.length>30?'…':'')+'</span>':'';
     const ph1=getPhrase(sc1),ph2=getPhrase(sc2);
     const fk=(gm.fbKey||'').replace(/["']/g,'');
     const scoreBlock = hasS ? `
@@ -1451,6 +1741,8 @@ function renderHistory(){
         </div>
       </div>` : `
       ${scoreBlock}
+      ${buildColourTable(gm)}
+      <button class="scan-btn admin-only" data-fbkey="${fk}" onclick="event.stopPropagation();openScanModal('${fk}')" style="display:none">&#x1F4F8; Scan score sheet</button>
       ${gm.note?`<div class="note-display">📝 ${gm.note}</div>`:''}
       <div class="game-meta-row">
         <span class="meta-chip"><span>🏆</span>${wName} won</span>
@@ -1459,14 +1751,14 @@ function renderHistory(){
         ${margin!==null?`<span class="meta-chip"><span>📏</span>${margin} pt margin</span>`:''}
       </div>
       <div style="display:flex;justify-content:flex-end;gap:8px;margin-top:8px">
-        <button class="game-card-edit-btn" data-fbkey="${fk}" onclick="event.stopPropagation();startEdit(this.dataset.fbkey)">✏️ Edit</button>
-        <button class="game-card-del" data-fbkey="${fk}" onclick="event.stopPropagation();deleteGame(this.dataset.fbkey)">🗑 Delete</button>
+        <button class="game-card-edit-btn admin-only" data-fbkey="${fk}" onclick="event.stopPropagation();startEdit(this.dataset.fbkey)" style="display:none">✏️ Edit</button>
+        <button class="game-card-del admin-only" data-fbkey="${fk}" onclick="event.stopPropagation();deleteGame(this.dataset.fbkey)" style="display:none">🗑 Delete</button>
       </div>`;
     return `<div class="game-card${isExp?' expanded':''}">
       <div class="game-card-header" data-fbkey="${fk}" onclick="toggleExpand(this.dataset.fbkey)">
         <span class="g-num">#${num}</span>
         <span class="g-winner-badge ${wCls}">🏆 ${wName}</span>
-        <span class="g-date-col">📅 ${fmtDate(gm.date)}</span>
+        <span class="g-date-col">📅 ${fmtDate(gm.date)}${notePreview}</span>
         ${hasS?`<span class="g-score-preview"><span class="s1">${sc1}</span> <span style="color:var(--muted)">–</span> <span class="s2">${sc2}</span></span>`:'<span></span>'}
         ${gm.note?`<span class="g-note-pip" title="${gm.note.replace(/"/g,'&quot;')}">📝</span>`:'<span></span>'}
         <span class="g-expand-icon">▼</span>
@@ -1487,14 +1779,681 @@ async function manualSync(){
   await sync();
 }
 
-// ══ BOOT ═════════════════════════════════════════════════════════════
-// 1. Show local data immediately (never a blank screen)
+// ══ SHARE FUNCTIONS ════════════════════════════════════════
+function applyGscShareDatePreset(){
+  var sel=document.getElementById('gscShareDatePreset'),cd=document.getElementById('gscShareDateCustom');
+  if(!sel)return;
+  if(sel.value==='custom'){if(cd){cd.style.display='flex';cd.style.flexDirection='column';}}
+  else{
+    if(cd)cd.style.display='none';
+    var f=document.getElementById('gscShareDateFrom'),t=document.getElementById('gscShareDateTo');
+    if(!sel.value){if(f)f.value='';if(t)t.value='';}
+    else{
+      var to=new Date(),from=new Date();
+      from.setDate(from.getDate()-parseInt(sel.value));
+      var fmt=function(d){return d.toISOString().split('T')[0];};
+      if(f)f.value=fmt(from);if(t)t.value=fmt(to);
+    }
+    refreshGscShareText();
+  }
+}
+function getGscShareDateFilter(){
+  var f=document.getElementById('gscShareDateFrom'),t=document.getElementById('gscShareDateTo');
+  return{from:(f&&f.value)||'',to:(t&&t.value)||''};
+}
+function refreshGscShareText(){
+  var ta=document.getElementById('gscShareText');
+  if(ta)ta.value=buildGscShareText(gscShareCurrentTab);
+}
+var gscShareCurrentTab='stats';
+function openGscShareModal(tab){
+  var ov=document.getElementById('gscShareOv'),box=document.getElementById('gscShareBox');
+  if(!ov||!box)return;
+  // Reset date filter
+  var sel=document.getElementById('gscShareDatePreset');if(sel)sel.value='';
+  var cd=document.getElementById('gscShareDateCustom');if(cd)cd.style.display='none';
+  var f=document.getElementById('gscShareDateFrom'),t=document.getElementById('gscShareDateTo');
+  if(f)f.value='';if(t)t.value='';
+  ov.style.opacity='1';ov.style.pointerEvents='auto';
+  box.style.opacity='1';box.style.pointerEvents='auto';box.style.transform='translate(-50%,-50%) scale(1)';
+  setGscShareTab(tab||'stats');
+}
+function closeGscShareModal(){
+  var ov=document.getElementById('gscShareOv'),box=document.getElementById('gscShareBox');
+  if(!ov||!box)return;
+  ov.style.opacity='0';ov.style.pointerEvents='none';
+  box.style.opacity='0';box.style.pointerEvents='none';box.style.transform='translate(-50%,-50%) scale(0.92)';
+}
+function setGscShareTab(tab){
+  gscShareCurrentTab=tab;
+  ['stats','history','last'].forEach(function(t){
+    var btn=document.getElementById('gscShareTab'+t.charAt(0).toUpperCase()+t.slice(1));
+    if(!btn)return;
+    if(t===tab){btn.style.background='var(--yellow)';btn.style.border='none';btn.style.color='var(--bg)';}
+    else{btn.style.background='var(--card2)';btn.style.border='2px solid var(--border)';btn.style.color='var(--muted)';}
+  });
+  var dr=document.getElementById('gscShareDateRow');
+  if(dr)dr.style.display=(tab==='last')?'none':'flex';
+  var ta=document.getElementById('gscShareText');
+  if(ta)ta.value=buildGscShareText(tab);
+}
+function buildGscShareText(tab){
+  var lines=[];
+  var df=getGscShareDateFilter();
+  var now=new Date().toLocaleDateString('en-GB',{day:'numeric',month:'short',year:'numeric'});
+  var n1=p1(),n2=p2();
+  var filtGames=games.filter(function(gm){
+    if(df.from&&gm.date&&gm.date<df.from)return false;
+    if(df.to&&gm.date&&gm.date>df.to)return false;
+    return true;
+  });
+  var periodStr=(df.from||df.to)?(' '+[df.from&&('from '+df.from),df.to&&('to '+df.to)].filter(Boolean).join(' ')):'';
+  if(tab==='stats'){
+    var tot=filtGames.length;
+    var w1=filtGames.filter(function(g){return g.winner===1;}).length;
+    var w2=filtGames.filter(function(g){return g.winner===2;}).length;
+    lines.push('Ganz Schon Clever'+periodStr);
+    lines.push(n1+' vs '+n2+' -- Generated '+now);
+    lines.push('');
+    lines.push('League Table');
+    lines.push('------------------------------------');
+    lines.push('Player          P    W    L   Pts');
+    lines.push('------------------------------------');
+    var pad=function(v,w){return String(v).padStart(w,' ');};
+    [[n1,w1,tot-w1],[n2,w2,tot-w2]].sort(function(a,b){return(b[1]*3)-(a[1]*3);}).forEach(function(r){
+      lines.push((r[0]+'              ').substring(0,16)+pad(tot,4)+pad(r[1],5)+pad(r[2],5)+pad(r[1]*3,6));
+    });
+    lines.push('');
+    var s1=filtGames.map(function(g){return g.score1||0;}).filter(function(s){return s>0;});
+    var s2=filtGames.map(function(g){return g.score2||0;}).filter(function(s){return s>0;});
+    if(s1.length){lines.push(n1+': Avg '+Math.round(s1.reduce(function(a,b){return a+b;},0)/s1.length)+' / Best '+Math.max.apply(null,s1));}
+    if(s2.length){lines.push(n2+': Avg '+Math.round(s2.reduce(function(a,b){return a+b;},0)/s2.length)+' / Best '+Math.max.apply(null,s2));}
+  } else if(tab==='history'){
+    lines.push('Ganz Schon Clever -- History'+periodStr);
+    lines.push(n1+' vs '+n2+' -- Generated '+now);
+    lines.push('');
+    var sorted=filtGames.slice().sort(function(a,b){
+      if(b.date&&a.date){var dc=b.date.localeCompare(a.date);if(dc!==0)return dc;}
+      return(b.id||0)-(a.id||0);
+    }).slice(0,50);
+    if(!sorted.length){lines.push('No games in this period.');return lines.join('\n');}
+    sorted.forEach(function(gm,i){
+      var wName=gm.winner===1?n1:n2;
+      var sc1=gm.score1||0,sc2=gm.score2||0;
+      lines.push('#'+(sorted.length-i)+' '+fmtDate(gm.date)+(gm.note?' -- '+gm.note:''));
+      lines.push('   '+wName+' wins -- '+n1+': '+sc1+' / '+n2+': '+sc2+(sc1>0&&sc2>0?' (+'+Math.abs(sc1-sc2)+')':''));
+      if(gm.colours){
+        var colStr=COLOURS.map(function(col){return col.label+': '+n1+' '+(gm.colours['p1_'+col.key]||0)+' / '+n2+' '+(gm.colours['p2_'+col.key]||0);}).join(' | ');
+        lines.push('   Colours: '+colStr);
+      }
+      lines.push('');
+    });
+  } else {
+    var last=games.slice().sort(function(a,b){
+      if(b.date&&a.date){var dc=b.date.localeCompare(a.date);if(dc!==0)return dc;}
+      return(b.id||0)-(a.id||0);
+    })[0];
+    if(!last)return'No games yet!';
+    var wName=last.winner===1?n1:n2;
+    var sc1=last.score1||0,sc2=last.score2||0;
+    lines.push('Ganz Schon Clever -- Last Game');
+    lines.push(fmtDate(last.date));
+    lines.push('');
+    lines.push(wName+' wins by '+Math.abs(sc1-sc2)+' pts!');
+    lines.push('');
+    var ph1=getPhrase(sc1),ph2=getPhrase(sc2);
+    lines.push(n1+': '+sc1+(ph1?' '+ph1.emoji+' '+ph1.phrase:''));
+    lines.push(n2+': '+sc2+(ph2?' '+ph2.emoji+' '+ph2.phrase:''));
+    if(last.colours){
+      lines.push('');lines.push('Colour Breakdown:');
+      COLOURS.forEach(function(col){
+        var v1=last.colours['p1_'+col.key]||0,v2=last.colours['p2_'+col.key]||0;
+        lines.push('  '+col.label+': '+n1+' '+v1+' / '+n2+' '+v2);
+      });
+    }
+    if(last.note){lines.push('');lines.push('Note: '+last.note);}
+  }
+  return lines.join('\n');
+}
+function copyGscShareText(){
+  var ta=document.getElementById('gscShareText');if(!ta)return;
+  if(navigator.clipboard){navigator.clipboard.writeText(ta.value).then(function(){if(typeof showToast==='function')showToast('Copied!');});}
+  else{ta.select();document.execCommand('copy');if(typeof showToast==='function')showToast('Copied!');}
+}
+function nativeGscShare(){
+  var ta=document.getElementById('gscShareText');if(!ta)return;
+  if(navigator.share){navigator.share({title:'Ganz Schon Clever',text:ta.value}).catch(function(){});}
+  else copyGscShareText();
+}
+function exportGscCsv(){
+  var df=getGscShareDateFilter();
+  var filtered=games.slice().sort(function(a,b){
+    if(b.date&&a.date){var dc=b.date.localeCompare(a.date);if(dc!==0)return dc;}
+    return(b.id||0)-(a.id||0);
+  }).filter(function(gm){
+    if(df.from&&gm.date&&gm.date<df.from)return false;
+    if(df.to&&gm.date&&gm.date>df.to)return false;
+    return true;
+  });
+  var n1=p1(),n2=p2();
+  var rows=[['#','Date','Winner',n1+' Score',n2+' Score','Margin','Note','Y '+n1,'B '+n1,'G '+n1,'O '+n1,'P '+n1,'F '+n1,'Y '+n2,'B '+n2,'G '+n2,'O '+n2,'P '+n2,'F '+n2]];
+  filtered.forEach(function(gm,i){
+    var wName=gm.winner===1?n1:gm.winner===2?n2:'?';
+    var sc1=gm.score1||0,sc2=gm.score2||0;
+    var row=[filtered.length-i,gm.date||'',wName,sc1,sc2,sc1>0&&sc2>0?Math.abs(sc1-sc2):'',gm.note||''];
+    ['y','b','g','o','p','f'].forEach(function(k){row.push(gm.colours?gm.colours['p1_'+k]||'':'');});
+    ['y','b','g','o','p','f'].forEach(function(k){row.push(gm.colours?gm.colours['p2_'+k]||'':'');});
+    rows.push(row);
+  });
+  var csv=rows.map(function(r){return r.map(function(c){return '"'+String(c).replace(/"/g,'""')+'"';}).join(',');}).join('\n');
+  var blob=new Blob([csv],{type:'text/csv;charset=utf-8;'});
+  var url=URL.createObjectURL(blob);
+  var a=document.createElement('a');a.href=url;a.download='gsc-'+(new Date().toISOString().split('T')[0])+'.csv';
+  document.body.appendChild(a);a.click();document.body.removeChild(a);URL.revokeObjectURL(url);
+  if(typeof showToast==='function')showToast('CSV downloaded!');
+}
+
+
+function buildColourTable(gm){
+  if(!gm.colours) return '';
+  var c=gm.colours, n1=p1(), n2=p2();
+  var rows='';
+  COLOURS.forEach(function(col){
+    var v1=c['p1_'+col.key]!=null?c['p1_'+col.key]:'—';
+    var v2=c['p2_'+col.key]!=null?c['p2_'+col.key]:'—';
+    rows+='<tr>'
+      +'<td><span style="display:inline-flex;align-items:center;gap:5px">'
+      +'<span style="width:8px;height:8px;border-radius:50%;background:'+col.hex+';display:inline-block"></span>'
+      +col.label+'</span></td>'
+      +'<td style="color:'+col.hex+'">'+v1+'</td>'
+      +'<td style="color:'+col.hex+'">'+v2+'</td>'
+      +'</tr>';
+  });
+  var t1=c.p1_total!=null?c.p1_total:'—';
+  var t2=c.p2_total!=null?c.p2_total:'—';
+  rows+='<tr class="total-row">'
+    +'<td>Total</td>'
+    +'<td style="color:var(--p1l)">'+t1+'</td>'
+    +'<td style="color:var(--p2l)">'+t2+'</td>'
+    +'</tr>';
+  return '<div style="margin-top:10px">'
+    +'<div style="font-size:0.6rem;text-transform:uppercase;letter-spacing:0.08em;color:var(--muted);font-weight:800;margin-bottom:4px">Colour Breakdown</div>'
+    +'<table class="colour-table">'
+    +'<thead><tr><th>Colour</th><th style="color:var(--p1l)">'+n1+'</th><th style="color:var(--p2l)">'+n2+'</th></tr></thead>'
+    +'<tbody>'+rows+'</tbody></table></div>';
+}
+
+// ── Scan Modal ──────────────────────────────────────────────────────────────
+var scanTargetFbKey=null;
+var scanNewGameMode=false;
+var pendingColours=null;
+
+function openScanModalNew(){
+  scanTargetFbKey=null;
+  scanNewGameMode=true;
+  var ov=G('scanOv'),modal=G('scanModal');
+  if(!ov||!modal)return;
+  G('scanStatus').textContent='Take or upload a photo of the score sheet.';
+  G('scanResults').style.display='none';
+  var prev=G('scanPreview');prev.style.display='none';prev.src='';
+  var fc=G('scanFileCamera'),fg=G('scanFileGallery');
+  if(fc)fc.value='';if(fg)fg.value='';
+  G('scanP1Label').textContent=p1();
+  G('scanP2Label').textContent=p2();
+  var sb=G('scanSaveBtn');if(sb)sb.textContent='✓ Use These Scores';
+  ov.classList.add('show');modal.classList.add('show');
+}
+function openScanModal(fbKey){
+  scanTargetFbKey=fbKey;
+  scanNewGameMode=false;
+  var sb=G('scanSaveBtn');if(sb)sb.textContent='✓ Save Colour Scores';
+  var ov=G('scanOv'), modal=G('scanModal');
+  if(!ov||!modal)return;
+  // Reset state
+  G('scanStatus').textContent='Take or upload a photo of the score sheet.';
+  G('scanResults').style.display='none';
+  var prev=G('scanPreview'); prev.style.display='none'; prev.src='';
+  var fc=G('scanFileCamera'),fg=G('scanFileGallery');
+  if(fc)fc.value=''; if(fg)fg.value='';
+  G('scanP1Label').textContent=p1();
+  G('scanP2Label').textContent=p2();
+  ov.classList.add('show'); modal.classList.add('show');
+}
+
+function closeScanModal(){
+  var ov=G('scanOv'), modal=G('scanModal');
+  if(ov)ov.classList.remove('show');
+  if(modal)modal.classList.remove('show');
+}
+
+function handleScanFile(input){
+  var file=input.files&&input.files[0];
+  if(!file)return;
+  var reader=new FileReader();
+  reader.onload=function(e){
+    var prev=G('scanPreview');
+    prev.src=e.target.result;
+    prev.style.display='block';
+    runVisionScan(e.target.result);
+  };
+  reader.readAsDataURL(file);
+}
+
+function colourInputRow(col, prefix, val){
+  return '<div class="colour-row">'
+    +'<span class="colour-dot" style="background:'+col.hex+'"></span>'
+    +'<label>'+col.label+'</label>'
+    +'<input type="number" min="0" max="400" id="scan_'+prefix+'_'+col.key+'" value="'+(val!=null?val:0)+'">'
+    +'</div>';
+}
+
+function renderScanInputs(data){
+  var p1Rows='', p2Rows='';
+  COLOURS.forEach(function(col){
+    p1Rows+=colourInputRow(col,'p1',data&&data['p1_'+col.key]);
+    p2Rows+=colourInputRow(col,'p2',data&&data['p2_'+col.key]);
+  });
+  // Total rows
+  p1Rows+='<div class="colour-row"><span class="colour-dot" style="background:var(--cream)"></span><label style="font-weight:900">Total</label><input type="number" min="0" max="400" id="scan_p1_total" value="'+(data&&data.p1_total||0)+'"></div>';
+  p2Rows+='<div class="colour-row"><span class="colour-dot" style="background:var(--cream)"></span><label style="font-weight:900">Total</label><input type="number" min="0" max="400" id="scan_p2_total" value="'+(data&&data.p2_total||0)+'"></div>';
+  G('scanP1Rows').innerHTML=p1Rows;
+  G('scanP2Rows').innerHTML=p2Rows;
+  G('scanResults').style.display='block';
+}
+
+async function runVisionScan(dataUrl){
+  var st=G('scanStatus');
+  st.textContent='Reading score sheet with AI... ⏳';
+  st.style.color='var(--yellow)';
+
+  // Detect actual media type from dataURL header
+  var mimeMatch=dataUrl.match(/^data:([^;]+);base64,/);
+  var mimeType=(mimeMatch&&mimeMatch[1])||'image/jpeg';
+  if(!['image/jpeg','image/png','image/gif','image/webp'].includes(mimeType)){
+    mimeType='image/jpeg';
+  }
+  var base64=dataUrl.split(',')[1];
+
+  var respRaw, json, text;
+  try{
+    respRaw=await fetch('https://api.anthropic.com/v1/messages',{
+      method:'POST',
+      headers:{
+        'Content-Type':'application/json',
+        'anthropic-version':'2023-06-01',
+        'anthropic-dangerous-direct-browser-access':'true'
+      },
+      body:JSON.stringify({
+        model:'claude-sonnet-4-20250514',
+        max_tokens:512,
+        messages:[{role:'user',content:[
+          {type:'image',source:{type:'base64',media_type:mimeType,data:base64}},
+          {type:'text',text:'This is a Ganz Schon Clever (dice game) score sheet. Two players are shown side by side. The 7 rows are always: Yellow, Blue, Green, Orange, Purple, Fox bonus (red border/fox icon), Total (sigma). Read each number carefully. Return ONLY raw JSON, no markdown, no explanation: {"p1_y":0,"p1_b":0,"p1_g":0,"p1_o":0,"p1_p":0,"p1_f":0,"p1_total":0,"p2_y":0,"p2_b":0,"p2_g":0,"p2_o":0,"p2_p":0,"p2_f":0,"p2_total":0}'}
+        ]}]
+      })
+    });
+  }catch(fetchErr){
+    st.textContent='Network error: '+fetchErr.message;
+    st.style.color='var(--red2)';
+    renderScanInputs(null);
+    return;
+  }
+
+  try{
+    json=await respRaw.json();
+  }catch(parseErr){
+    st.textContent='Bad response from API (HTTP '+respRaw.status+')';
+    st.style.color='var(--red2)';
+    renderScanInputs(null);
+    return;
+  }
+
+  if(json.error){
+    st.textContent='API error: '+json.error.message;
+    st.style.color='var(--red2)';
+    renderScanInputs(null);
+    return;
+  }
+
+  try{
+    text=(json.content&&json.content[0]&&json.content[0].text)||'';
+    // Strip markdown fences if present
+    text=text.replace(/```[a-z]*/gi,'').replace(/```/g,'').trim();
+    // Extract JSON object from anywhere in the text
+    var match=text.match(/\{[\s\S]*\}/);
+    if(!match) throw new Error('No JSON object found in: '+text.substring(0,120));
+    var data=JSON.parse(match[0]);
+    // Validate we got actual numbers, not all zeros
+    var total=Object.values(data).reduce(function(a,b){return a+b;},0);
+    if(total===0) throw new Error('All values are zero — image may be unreadable');
+    st.textContent='Scores detected! ✓ Check and adjust if needed.';
+    st.style.color='var(--green)';
+    renderScanInputs(data);
+  }catch(parseErr){
+    // Show the raw text so we can debug
+    st.innerHTML='Could not parse scores. Raw response: <code style="font-size:0.65rem;word-break:break-all">'+
+      (text||'empty').substring(0,200)+'</code>';
+    st.style.color='var(--red2)';
+    renderScanInputs(null);
+  }
+}
+
+async function saveScanResults(){
+  if(scanNewGameMode){
+    var p1Total=parseInt(G('scan_p1_total')&&G('scan_p1_total').value)||0;
+    var p2Total=parseInt(G('scan_p2_total')&&G('scan_p2_total').value)||0;
+    pendingColours={};
+    COLOURS.forEach(function(col){
+      pendingColours['p1_'+col.key]=parseInt(G('scan_p1_'+col.key)&&G('scan_p1_'+col.key).value)||0;
+      pendingColours['p2_'+col.key]=parseInt(G('scan_p2_'+col.key)&&G('scan_p2_'+col.key).value)||0;
+    });
+    pendingColours.p1_total=p1Total;
+    pendingColours.p2_total=p2Total;
+    if(G('s1')){G('s1').value=p1Total;onScoreInput(1);}
+    if(G('s2')){G('s2').value=p2Total;onScoreInput(2);}
+    closeScanModal();
+    showToast('Scores filled! Check and save the game.');
+    scanNewGameMode=false;
+    return;
+  }
+  if(!scanTargetFbKey)return;
+  var colours={};
+  COLOURS.forEach(function(col){
+    var v1=parseInt(G('scan_p1_'+col.key)&&G('scan_p1_'+col.key).value)||0;
+    var v2=parseInt(G('scan_p2_'+col.key)&&G('scan_p2_'+col.key).value)||0;
+    colours['p1_'+col.key]=v1;
+    colours['p2_'+col.key]=v2;
+  });
+  colours.p1_total=parseInt(G('scan_p1_total')&&G('scan_p1_total').value)||0;
+  colours.p2_total=parseInt(G('scan_p2_total')&&G('scan_p2_total').value)||0;
+  // Find game and update
+  var gm=games.find(function(g){return g.fbKey===scanTargetFbKey;});
+  if(!gm){showToast('Game not found');return;}
+  gm.colours=colours;
+  // Save to Firebase
+  try{
+    await fbWrite('games/'+scanTargetFbKey+'/colours',colours);
+    lsSave();
+    renderAll();
+    closeScanModal();
+    showToast('Colour scores saved! 🎨');
+  }catch(e){
+    lsSave();
+    renderAll();
+    closeScanModal();
+    showToast('Saved locally');
+  }
+}
+
 lsLoad();
 setStatus('connecting');
 G('gameDate').valueAsDate = new Date();
 renderAll();
 // 2. Start syncing with Firebase
+_tryRestoreAuth();
+updateAdminUI();
 startSync();
+function exportGscPdf(){
+  var df=getGscShareDateFilter();
+  var filtGames=games.filter(function(gm){
+    if(df.from&&gm.date&&gm.date<df.from)return false;
+    if(df.to&&gm.date&&gm.date>df.to)return false;
+    return true;
+  });
+  var n1=p1(),n2=p2();
+  var now=new Date().toLocaleDateString('en-GB',{day:'numeric',month:'long',year:'numeric'});
+  var periodStr=df.from||df.to?' | '+[df.from&&('From '+df.from),df.to&&('To '+df.to)].filter(Boolean).join(' '):'';
+  var win=window.open('','_blank','width=820,height=1050');
+
+  var css='<style>'
+    +'*{box-sizing:border-box;margin:0;padding:0}'
+    +'@import url(\'https://fonts.googleapis.com/css2?family=Fredoka+One&family=Nunito:wght@400;700;800&display=swap\');'
+    +'body{font-family:Nunito,Arial,sans-serif;background:#0f1923;color:#e8d5a3;padding:40px 48px;max-width:760px;margin:0 auto;min-height:100vh}'
+    +'.header{background:linear-gradient(135deg,#1e3a5f,#2d5986);border:2px solid rgba(245,200,66,0.3);border-radius:18px;padding:24px 28px;margin-bottom:28px;position:relative;overflow:hidden}'
+    +'.header::before{content:"🎲 🎯 🎲 🏆 🎲";position:absolute;right:-10px;top:50%;transform:translateY(-50%);font-size:28px;opacity:0.15;letter-spacing:4px;white-space:nowrap}'
+    +'.brand{font-size:11px;text-transform:uppercase;letter-spacing:0.18em;color:rgba(245,200,66,0.7);margin-bottom:4px;font-weight:800}'
+    +'h1{font-family:"Fredoka One",cursive;font-size:32px;color:#f5c842;margin-bottom:2px}'
+    +'.meta{font-size:12px;color:rgba(232,213,163,0.7)}'
+    +'table{width:100%;border-collapse:separate;border-spacing:0;margin-bottom:24px;border-radius:12px;overflow:hidden;box-shadow:0 2px 20px rgba(0,0,0,0.4)}'
+    +'thead tr{background:linear-gradient(135deg,#f5c842,#e8a020)}'
+    +'th{padding:11px 14px;text-align:left;font-size:11px;text-transform:uppercase;letter-spacing:0.1em;color:#1a1a2e;font-weight:800}'
+    +'th.num{text-align:center}'
+    +'td{padding:10px 14px;background:#162030;border-bottom:1px solid rgba(245,200,66,0.1);font-size:13px;color:#e8d5a3}'
+    +'td.num{text-align:center;font-weight:700}'
+    +'tr:last-child td{border-bottom:none}'
+    +'tr.top td{background:#1e3a5f;font-weight:800}'
+    +'.pts{font-size:17px;font-weight:800;color:#f5c842}'
+    +'.win-badge{background:linear-gradient(135deg,#f5c842,#e8a020);color:#1a1a2e;border-radius:20px;padding:2px 10px;font-size:11px;font-weight:800;display:inline-block}'
+    +'.legend{background:rgba(245,200,66,0.1);border:1px solid rgba(245,200,66,0.25);border-radius:10px;padding:10px 16px;font-size:12px;color:#f5c842;font-weight:700;margin-bottom:24px}'
+    +'.footer{margin-top:36px;padding-top:14px;border-top:2px dashed rgba(245,200,66,0.2);font-size:11px;color:rgba(232,213,163,0.5);display:flex;justify-content:space-between;align-items:center}'
+    +'.footer-emoji{font-size:20px;letter-spacing:4px}'
+    +'@media print{body{background:#0f1923;-webkit-print-color-adjust:exact;print-color-adjust:exact}thead tr{-webkit-print-color-adjust:exact;print-color-adjust:exact}.header{-webkit-print-color-adjust:exact;print-color-adjust:exact}}'
+    +'</style>';
+
+  var body='<div class="header"><div class="brand">🎲 Ganz Schön Clever</div>';
+  var tot=filtGames.length;
+  var w1=filtGames.filter(function(g){return g.winner===1;}).length;
+  var w2=filtGames.filter(function(g){return g.winner===2;}).length;
+
+  if(gscShareCurrentTab==='stats'){
+    body+='<h1>Stats</h1><div class="meta">'+n1+' vs '+n2+' &nbsp;|&nbsp; '+now+periodStr+'</div></div>';
+    var s1=filtGames.map(function(g){return g.score1||0;}).filter(function(s){return s>0;});
+    var s2=filtGames.map(function(g){return g.score2||0;}).filter(function(s){return s>0;});
+    var avg1=s1.length?Math.round(s1.reduce(function(a,b){return a+b;},0)/s1.length):'-';
+    var avg2=s2.length?Math.round(s2.reduce(function(a,b){return a+b;},0)/s2.length):'-';
+    var best1=s1.length?Math.max.apply(null,s1):'-';
+    var best2=s2.length?Math.max.apply(null,s2):'-';
+    body+='<table><thead><tr><th>Player</th><th class="num">Played</th><th class="num">Won</th><th class="num">Lost</th><th class="num">Win %</th><th class="num">Avg</th><th class="num">Best</th></tr></thead><tbody>';
+    [[n1,w1,tot-w1,avg1,best1],[n2,w2,tot-w2,avg2,best2]].sort(function(a,b){return b[1]-a[1];}).forEach(function(r,i){
+      var pct=tot?Math.round(r[1]/tot*100)+'%':'-';
+      body+='<tr class="'+(i===0?'top':'')+'"><td>🎲 '+r[0]+'</td><td class="num">'+tot+'</td><td class="num">'+r[1]+'</td><td class="num">'+r[2]+'</td><td class="num">'+pct+'</td><td class="num">'+r[3]+'</td><td class="num pts">'+r[4]+'</td></tr>';
+    });
+    body+='</tbody></table>';
+  } else if(gscShareCurrentTab==='history'){
+    body+='<h1>Game History</h1><div class="meta">'+n1+' vs '+n2+' &nbsp;|&nbsp; '+now+periodStr+'</div></div>';
+    var recent=filtGames.slice().sort(function(a,b){if(b.date&&a.date)return b.date.localeCompare(a.date);return(b.id||0)-(a.id||0);}).slice(0,80);
+    body+='<table><thead><tr><th class="num">#</th><th>Date</th><th>Winner</th><th class="num">'+n1+'</th><th class="num">'+n2+'</th><th class="num">Gap</th></tr></thead><tbody>';
+    recent.forEach(function(gm,i){
+      var wName=gm.winner===1?n1:gm.winner===2?n2:'?';
+      var sc1=gm.score1||0,sc2=gm.score2||0;
+      body+='<tr><td class="num">'+(recent.length-i)+'</td><td>'+fmtDate(gm.date)+'</td>'
+        +'<td><span class="win-badge">🏆 '+wName+'</span></td>'
+        +'<td class="num '+(gm.winner===1?'pts':'')+' ">'+sc1+'</td>'
+        +'<td class="num '+(gm.winner===2?'pts':'')+' ">'+sc2+'</td>'
+        +'<td class="num" style="color:rgba(232,213,163,0.5)">+'+Math.abs(sc1-sc2)+'</td></tr>';
+    });
+    body+='</tbody></table>';
+  } else {
+    var last=games.slice().sort(function(a,b){if(b.date&&a.date){var dc=b.date.localeCompare(a.date);if(dc!==0)return dc;}return(b.id||0)-(a.id||0);})[0];
+    if(!last){win.close();if(typeof showToast==='function')showToast('No games yet');return;}
+    var wName2=last.winner===1?n1:last.winner===2?n2:'?';
+    var sc1=last.score1||0,sc2=last.score2||0;
+    body+='<h1>Last Game</h1><div class="meta">'+fmtDate(last.date)+(last.note?' | '+last.note:'')+'</div></div>';
+    body+='<div style="text-align:center;font-size:64px;padding:16px 0">🏆</div>';
+    body+='<div style="text-align:center;font-family:\'Fredoka One\',cursive;font-size:28px;color:#f5c842;margin-bottom:24px">'+wName2+' wins by '+Math.abs(sc1-sc2)+' pts!</div>';
+    body+='<table><thead><tr><th>Player</th><th class="num">Score</th></tr></thead><tbody>';
+    [[n1,sc1,last.winner===1],[n2,sc2,last.winner===2]].forEach(function(r){
+      body+='<tr class="'+(r[2]?'top':'')+'"><td>'+(r[2]?'🏆 ':'')+r[0]+'</td><td class="num pts">'+r[1]+'</td></tr>';
+    });
+    body+='</tbody></table>';
+    if(last.colours){
+      body+='<div class="legend" style="margin-top:16px">🎨 Colour Breakdown</div>';
+      body+='<table><thead><tr><th>Colour</th><th class="num">'+n1+'</th><th class="num">'+n2+'</th></tr></thead><tbody>';
+      var COLS=[{k:'y',l:'🟡 Yellow'},{k:'b',l:'🔵 Blue'},{k:'g',l:'🟢 Green'},{k:'o',l:'🟠 Orange'},{k:'p',l:'🟣 Purple'},{k:'f',l:'🦊 Fox'}];
+      COLS.forEach(function(col){
+        body+='<tr><td>'+col.l+'</td><td class="num">'+(last.colours['p1_'+col.k]||0)+'</td><td class="num">'+(last.colours['p2_'+col.k]||0)+'</td></tr>';
+      });
+      body+='</tbody></table>';
+    }
+  }
+
+  win.document.write('<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Ganz Schon Clever</title>'+css+'</head>'
+    +'<body>'+body
+    +'<div class="footer"><span class="footer-emoji">🎲 🎯 🏆</span><span>Ganz Schön Clever Tracker &nbsp;|&nbsp; '+now+'</span></div>'
+    +'</body></html>');
+  win.document.close();
+  setTimeout(function(){win.print();},600);
+}
+
+
+function exportGscXlsx(){
+  var df=getGscShareDateFilter();
+  var n1=p1(),n2=p2();
+  var filtered=games.slice().sort(function(a,b){
+    if(b.date&&a.date){var dc=b.date.localeCompare(a.date);if(dc!==0)return dc;}
+    return(b.id||0)-(a.id||0);
+  }).filter(function(gm){
+    if(df.from&&gm.date&&gm.date<df.from)return false;
+    if(df.to&&gm.date&&gm.date>df.to)return false;
+    return true;
+  });
+
+  var tot=filtered.length;
+  var w1=filtered.filter(function(g){return g.winner===1;}).length;
+  var w2=filtered.filter(function(g){return g.winner===2;}).length;
+  var s1=filtered.map(function(g){return g.score1||0;}).filter(function(s){return s>0;});
+  var s2=filtered.map(function(g){return g.score2||0;}).filter(function(s){return s>0;});
+  var avg1=s1.length?Math.round(s1.reduce(function(a,b){return a+b;},0)/s1.length):null;
+  var avg2=s2.length?Math.round(s2.reduce(function(a,b){return a+b;},0)/s2.length):null;
+  var best1=s1.length?Math.max.apply(null,s1):null;
+  var best2=s2.length?Math.max.apply(null,s2):null;
+
+  var statsRows=[
+    ['Player','Games','Wins','Losses','Win %','Avg Score','Best Score'],
+    [n1,tot,w1,tot-w1,tot?Math.round(w1/tot*100)+'%':'',avg1||'',best1||''],
+    [n2,tot,w2,tot-w2,tot?Math.round(w2/tot*100)+'%':'',avg2||'',best2||''],
+  ];
+
+  var colNames=['Yellow','Blue','Green','Orange','Purple','Fox'];
+  var colKeys=['y','b','g','o','p','f'];
+  var histHeaders=['#','Date','Winner',n1+' Total',n2+' Total','Margin'];
+  colNames.forEach(function(c){histHeaders.push(n1+' '+c);});
+  colNames.forEach(function(c){histHeaders.push(n2+' '+c);});
+  histHeaders.push('Note');
+
+  var histRows=[histHeaders];
+  filtered.forEach(function(gm,i){
+    var wName=gm.winner===1?n1:gm.winner===2?n2:'?';
+    var sc1=gm.score1||0,sc2=gm.score2||0;
+    var row=[filtered.length-i,gm.date||'',wName,sc1,sc2,sc1>0&&sc2>0?Math.abs(sc1-sc2):''];
+    colKeys.forEach(function(k){row.push(gm.colours?gm.colours['p1_'+k]||'':'');});
+    colKeys.forEach(function(k){row.push(gm.colours?gm.colours['p2_'+k]||'':'');});
+    row.push(gm.note||'');
+    histRows.push(row);
+  });
+
+  var doExport=function(){
+    var wb=XLSX.utils.book_new();
+    var ws1=XLSX.utils.aoa_to_sheet(statsRows);
+    var ws2=XLSX.utils.aoa_to_sheet(histRows);
+    ws1['!cols']=[{wch:14},{wch:7},{wch:7},{wch:7},{wch:7},{wch:10},{wch:10}];
+    ws2['!cols']=[{wch:4},{wch:12},{wch:12},{wch:10},{wch:10},{wch:7},{wch:8},{wch:8},{wch:8},{wch:8},{wch:8},{wch:8},{wch:8},{wch:8},{wch:8},{wch:8},{wch:8},{wch:8},{wch:24}];
+    XLSX.utils.book_append_sheet(wb,ws1,'Stats');
+    XLSX.utils.book_append_sheet(wb,ws2,'Game History');
+    XLSX.writeFile(wb,'gsc-'+(new Date().toISOString().split('T')[0])+'.xlsx');
+    if(typeof showToast==='function')showToast('Excel downloaded!');
+  };
+
+  if(typeof XLSX !== 'undefined'){
+    doExport();
+  } else {
+    var s=document.createElement('script');
+    s.src='https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js';
+    s.onload=doExport;
+    s.onerror=function(){exportGscCsv();if(typeof showToast==='function')showToast('Using CSV');};
+    document.head.appendChild(s);
+  }
+}
+
+
+// ══ AUTH ════════════════════════════════════════════════════════════════════
+var FIREBASE_WEB_API_KEY = 'AIzaSy_REPLACE_WITH_YOUR_KEY'; // <-- same key as SG
+var _authToken = null;
+var _authExpiry = 0;
+var isAdmin = false;
+
+function _authHeader(){
+  return (_authToken && Date.now() < _authExpiry) ? '?auth='+_authToken : '';
+}
+async function adminLogin(email, password){
+  var errEl = document.getElementById('loginError');
+  var btnEl = document.getElementById('loginSubmitBtn');
+  if(btnEl) btnEl.textContent = 'Logging in...';
+  try{
+    var r = await fetch('https://identitytoolkit.googleapis.com/v1/accounts:signInWithPassword?key='+FIREBASE_WEB_API_KEY,
+      {method:'POST',headers:{'Content-Type':'application/json'},
+       body:JSON.stringify({email:email,password:password,returnSecureToken:true})});
+    var d = await r.json();
+    if(d.error){
+      var msg = (d.error.message||'').includes('INVALID')?'Incorrect email or password.':d.error.message;
+      if(errEl) errEl.textContent = msg;
+      if(btnEl) btnEl.textContent = 'Log In';
+      return;
+    }
+    _authToken = d.idToken;
+    _authExpiry = Date.now() + (parseInt(d.expiresIn)||3600)*1000;
+    isAdmin = true;
+    try{localStorage.setItem('_gsc_tok',_authToken);localStorage.setItem('_gsc_exp',String(_authExpiry));}catch(e){}
+    closeLoginModal();
+    updateAdminUI();
+    renderAll();
+    if(typeof showToast==='function') showToast('Logged in as admin 🔓');
+  }catch(e){
+    if(errEl) errEl.textContent = 'Network error — try again.';
+    if(btnEl) btnEl.textContent = 'Log In';
+  }
+}
+function adminLogout(){
+  _authToken=null;_authExpiry=0;isAdmin=false;
+  try{localStorage.removeItem('_gsc_tok');localStorage.removeItem('_gsc_exp');}catch(e){}
+  updateAdminUI();renderAll();
+  if(typeof showToast==='function') showToast('Logged out');
+}
+function _tryRestoreAuth(){
+  try{
+    var tok=localStorage.getItem('_gsc_tok');
+    var exp=parseInt(localStorage.getItem('_gsc_exp')||'0');
+    if(tok&&Date.now()<exp){_authToken=tok;_authExpiry=exp;isAdmin=true;}
+  }catch(e){}
+}
+function updateAdminUI(){
+  var dot    = document.getElementById('adminDot');
+  var status = document.getElementById('adminStatus');
+  var loginB = document.getElementById('adminLoginBtn');
+  var logoutB= document.getElementById('adminLogoutBtn');
+  var writeEls = document.querySelectorAll('.admin-only');
+  if(isAdmin){
+    if(dot){dot.className='admin-dot live';}
+    if(status){status.textContent='Admin';status.style.color='var(--green)';}
+    if(loginB) loginB.style.display='none';
+    if(logoutB) logoutB.style.display='';
+    writeEls.forEach(function(el){el.style.display='';});
+  } else {
+    if(dot){dot.className='admin-dot ro';}
+    if(status){status.textContent='Read only';status.style.color='var(--yellow)';}
+    if(loginB) loginB.style.display='';
+    if(logoutB) logoutB.style.display='none';
+    writeEls.forEach(function(el){el.style.display='none';});
+  }
+}
+function openLoginModal(){
+  var ov=document.getElementById('loginOv'),box=document.getElementById('loginBox');
+  if(!ov||!box)return;
+  var e=document.getElementById('loginEmail'),p=document.getElementById('loginPass'),err=document.getElementById('loginError');
+  if(e)e.value='';if(p)p.value='';if(err)err.textContent='';
+  var btn=document.getElementById('loginSubmitBtn');if(btn)btn.textContent='Log In';
+  ov.classList.add('show');box.classList.add('show');
+  setTimeout(function(){if(e)e.focus();},120);
+}
+function closeLoginModal(){
+  var ov=document.getElementById('loginOv'),box=document.getElementById('loginBox');
+  if(ov)ov.classList.remove('show');if(box)box.classList.remove('show');
+}
+function doLogin(){
+  var e=document.getElementById('loginEmail'),p=document.getElementById('loginPass');
+  if(!e||!p)return;
+  adminLogin(e.value.trim(),p.value);
+}
+
 </script>
 </body>
-</html>
