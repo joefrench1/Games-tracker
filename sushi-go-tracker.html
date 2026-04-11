@@ -1933,38 +1933,40 @@ function renderLeaderboard(){
   }).sort((a,b)=>b.pts-a.pts||a.played-b.played||b.wins-a.wins);
 
   // Column header row
-  var html='<div style="display:grid;grid-template-columns:1fr 26px 26px 26px 26px 36px;'
-    +'gap:0;padding:0 8px 8px;border-bottom:1px solid var(--border);margin-bottom:6px;">'
+  var html='<div style="display:grid;grid-template-columns:1fr 28px 28px 28px 28px 38px 28px;'
+    +'gap:4px;padding:0 8px 8px;border-bottom:1px solid var(--border);margin-bottom:6px;">'
     +'<span style="font-size:0.57rem;text-transform:uppercase;letter-spacing:0.07em;color:var(--muted);font-weight:800">Player</span>'
     +'<span style="font-size:0.57rem;text-transform:uppercase;color:var(--muted);font-weight:800;text-align:center">P</span>'
     +'<span style="font-size:0.57rem;text-transform:uppercase;color:var(--muted);font-weight:800;text-align:center">W</span>'
     +'<span style="font-size:0.57rem;text-transform:uppercase;color:var(--yellow);font-weight:800;text-align:center">D</span>'
     +'<span style="font-size:0.57rem;text-transform:uppercase;color:var(--muted);font-weight:800;text-align:center">L</span>'
     +'<span style="font-size:0.57rem;text-transform:uppercase;color:var(--yellow);font-weight:800;text-align:center">Pts</span>'
-    +'</div>';
+    +'<span></span></div>';
 
   rows.forEach(function(r,i){
     var pc=clr(r.p.colorIdx);
     var fk=H(String(r.p.id));
+    var init=r.p.name.substring(0,2).toUpperCase();
     var isTop=i===0;
-    var rowStyle='display:grid;grid-template-columns:1fr 26px 26px 26px 26px 36px;'
-      +'gap:0;padding:9px 8px;cursor:pointer;border-radius:10px;transition:background 0.15s;'
+    var rowStyle='display:grid;grid-template-columns:1fr 28px 28px 28px 28px 38px 28px;'
+      +'gap:4px;padding:10px 8px;cursor:pointer;border-radius:10px;transition:background 0.15s;'
       +(isTop?'background:rgba(245,200,66,0.06);':'');
     var ptsCol=i===0?'var(--yellow)':i===1?'var(--cream)':'#cd7f32';
     html+='<div style="'+rowStyle+'" data-pid="'+fk+'" onclick="showStats(this.dataset.pid)" onmouseenter="this.style.background=\'var(--card2)\'" onmouseleave="this.style.background=\''+(isTop?'\'rgba(245,200,66,0.06)\'':'\'transparent\'')+'\'">'
-      // Name — single line, uses all available space
-      +'<div style="display:flex;align-items:center;gap:6px;min-width:0;overflow:hidden">'
-      +'<div style="width:6px;height:6px;border-radius:50%;background:'+pc.c+';flex-shrink:0;opacity:0.9"></div>'
-      +'<span style="font-family:Fredoka One,cursive;font-size:0.92rem;color:var(--cream);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;flex:1">'+H(r.p.name)+'</span>'
-      +(r.best!==null?'<span style="font-size:0.58rem;color:var(--muted);font-weight:700;flex-shrink:0;margin-left:4px">'+r.best+'↑</span>':'')
-      +'<button class="del-sm admin-only" data-pid="'+fk+'" onclick="event.stopPropagation();removePlayer(this.dataset.pid)" style="display:none;flex-shrink:0;margin-left:2px">\u2715</button>'
+      // Name + rank (full width, 2 lines)
+      +'<div style="display:flex;align-items:center;gap:8px;min-width:0">'
+      +'<div style="width:32px;height:32px;border-radius:50%;background:'+pc.bg+';color:'+pc.l
+      +';display:flex;align-items:center;justify-content:center;font-family:Fredoka One,cursive;'
+      +'font-size:0.82rem;flex-shrink:0;border:2px solid '+pc.c+'55">'+init+'</div>'
+      +'<div style="font-family:Fredoka One,cursive;font-size:0.88rem;color:var(--cream);word-break:break-word;line-height:1.2">'+H(r.p.name)+'</div>'
       +'</div>'
-      // Stats — tight columns
-      +'<span style="text-align:center;font-family:DM Mono,monospace;font-size:0.76rem;color:var(--muted);align-self:center">'+r.played+'</span>'
-      +'<span style="text-align:center;font-family:DM Mono,monospace;font-size:0.76rem;color:'+pc.l+';align-self:center">'+r.wins+'</span>'
-      +'<span style="text-align:center;font-family:DM Mono,monospace;font-size:0.76rem;color:var(--yellow);align-self:center">'+r.draws+'</span>'
-      +'<span style="text-align:center;font-family:DM Mono,monospace;font-size:0.76rem;color:var(--muted);align-self:center">'+r.losses+'</span>'
-      +'<span style="text-align:center;font-family:Fredoka One,cursive;font-size:1.0rem;color:'+ptsCol+';align-self:center;font-weight:900">'+r.pts+'</span>'
+      // Stats
+      +'<span style="text-align:center;font-family:DM Mono,monospace;font-size:0.78rem;color:var(--muted);align-self:center">'+r.played+'</span>'
+      +'<span style="text-align:center;font-family:DM Mono,monospace;font-size:0.78rem;color:'+pc.l+';align-self:center">'+r.wins+'</span>'
+      +'<span style="text-align:center;font-family:DM Mono,monospace;font-size:0.78rem;color:var(--yellow);align-self:center">'+r.draws+'</span>'
+      +'<span style="text-align:center;font-family:DM Mono,monospace;font-size:0.78rem;color:var(--muted);align-self:center">'+r.losses+'</span>'
+      +'<span style="text-align:center;font-family:Fredoka One,cursive;font-size:1.05rem;color:'+ptsCol+';align-self:center;font-weight:900">'+r.pts+'</span>'
+      +'<button class="del-sm admin-only" data-pid="'+fk+'" onclick="event.stopPropagation();removePlayer(this.dataset.pid)" style="align-self:center;display:none">\u2715</button>'
       +'</div>';
   });
   html+='<div style="margin-top:8px;padding:0 8px;font-size:0.57rem;color:var(--muted);font-weight:700;text-align:right">'
